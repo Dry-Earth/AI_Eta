@@ -57,9 +57,29 @@ class EdgeTtsCodecTest {
         val start = 1_760_000_000_000L
         val token = EdgeTtsCodec.drmToken(start)
         assertEquals(token, EdgeTtsCodec.drmToken(start + 60_000))
-        assertEquals(64, token.length)
-        assertTrue(token.all { it in '0'..'9' || it in 'A'..'F' })
         assertNotEquals(token, EdgeTtsCodec.drmToken(start + 300_000))
+        assertTrue(Regex("[0-9A-F]{16}-[0-9A-F]{64}").matches(token))
+    }
+
+    /**
+     * 参考值来自与微软接口实际握手成功的实现（HTTP 101）；改动算法前先确保这些向量仍然成立，
+     * 否则线上会直接变成 403。
+     */
+    @Test fun drmTokenMatchesReferenceVectors() {
+        val vectors = mapOf(
+            1_760_000_000_000L to "6D50DDDB91812C33-DD68EFB01898B0750C9797D51A5FF93471DFDAE6888A1039D532CBDCCE54545D",
+            1_760_000_300_000L to "BAF4076F572BFE4E-2D6FBE5C0E24F56622EB94F37395F2D153C6C0C451DAAE2249A459BB3AFAD62C",
+            1_700_000_000_000L to "2CD23A2CA0B2595A-F3C846C370E05F9CC83ACC5F995C5F5D87A4D0F14CE8936A0F902E64099E38A2",
+            0L to "52BC7A17B50DFEC9-28C4394775C8751CD2F6859C030C06DB1489ACAB3B3A7651831FC26895177ED6",
+        )
+        for ((timestamp, expected) in vectors) {
+            assertEquals("timestamp=$timestamp", expected, EdgeTtsCodec.drmToken(timestamp))
+        }
+    }
+
+    @Test fun drmVersionUsesV2Scheme() {
+        // v1 版本头搭配 v2 令牌同样会被拒绝，两者必须成对。
+        assertTrue(EdgeTtsCodec.DRM_VERSION.startsWith("2-"))
     }
 
     @Test fun timestampIsSecondPrecisionUtc() {

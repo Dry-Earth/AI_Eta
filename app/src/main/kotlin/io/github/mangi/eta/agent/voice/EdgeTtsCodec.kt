@@ -1,6 +1,5 @@
 package io.github.mangi.eta.agent.voice
 
-import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -17,7 +16,9 @@ internal object EdgeTtsCodec {
     /** Edge 朗读公开使用的客户端令牌，不是用户凭据。 */
     const val TRUSTED_CLIENT_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4"
     const val OUTPUT_FORMAT = "audio-24khz-48kbitrate-mono-mp3"
-    const val DRM_VERSION = "1-130.0.2849.68"
+
+    /** 令牌格式与版本头必须成对使用，v1 令牌会被服务端以 403 拒绝。 */
+    const val DRM_VERSION = EdgeDrm.VERSION
 
     private val VOICE_PATTERN = Regex("[A-Za-z0-9_\\-()]{2,64}")
     private val CONTROL_CHARS = Regex("[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\u007F]")
@@ -81,17 +82,10 @@ internal object EdgeTtsCodec {
         .format(Date(epochMillis))
 
     /**
-     * Edge 自 2024 年起要求 `Sec-MS-GEC`：以 300 秒为窗口的 Windows 时间戳加客户端令牌做 SHA-256。
-     * 时间窗口与官方实现一致，误差不打乱服务端判定。
+     * Edge 的 `Sec-MS-GEC` 令牌，格式为 `<CS64>-<SHA256>`，每 300 秒换一次。
+     * 旧版纯 SHA-256 令牌已经被服务端废弃，这里统一走 [EdgeDrm] 的 v2 实现。
      */
-    fun drmToken(epochMillis: Long): String {
-        val ticks = epochMillis / 1_000L + WINDOWS_EPOCH_SECONDS
-        val rounded = ticks - ticks % 300L
-        val stamp = rounded * 10_000_000L
-        val digest = MessageDigest.getInstance("SHA-256")
-            .digest((stamp.toString() + TRUSTED_CLIENT_TOKEN).toByteArray(Charsets.US_ASCII))
-        return digest.joinToString("") { byte -> "%02X".format(byte) }
-    }
+    fun drmToken(epochMillis: Long): String = EdgeDrm.secMsGecV2(epochMillis)
 
     /**
      * 二进制帧：前两字节为大端头长度，随后是 JSON 头，再往后是音频。
@@ -108,8 +102,6 @@ internal object EdgeTtsCodec {
         val audio = bytes.copyOfRange(start, bytes.size)
         return if (audio.isEmpty()) EdgeFrame.Metadata(path) else EdgeFrame.Audio(audio)
     }
-
-    private const val WINDOWS_EPOCH_SECONDS = 11_644_473_600L
 }
 
 internal sealed interface EdgeFrame {

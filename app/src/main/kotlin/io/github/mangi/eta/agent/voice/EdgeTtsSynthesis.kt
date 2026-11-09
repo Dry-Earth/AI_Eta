@@ -35,6 +35,7 @@ internal suspend fun synthesizeEdgeTts(
         .header("Origin", "chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold")
         .header("Pragma", "no-cache")
         .header("Cache-Control", "no-cache")
+        .header("Accept-Language", "en-US,en;q=0.9")
         .header("User-Agent", USER_AGENT)
         .build()
     val audio = ByteArrayOutputStream()
@@ -147,6 +148,6 @@ private sealed interface EdgeSocketFrame {
 private const val TURN_END = "Path:turn.end"
 private const val USER_AGENT =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
-        "Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+        "Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0"
 /** MP3 有压缩比，但单段文本仍有上限，避免异常响应把内存撑爆。 */
 private const val MAX_AUDIO_BYTES = 8L * 1024 * 1024
