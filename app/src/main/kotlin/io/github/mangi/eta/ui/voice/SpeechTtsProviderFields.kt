@@ -6,6 +6,7 @@ import androidx.compose.ui.res.stringResource
 import com.itos.coui.layout.Divider
 import io.github.mangi.eta.R
 import io.github.mangi.eta.data.model.AppearanceUiStyle
+import io.github.mangi.eta.data.model.CustomTtsConfig
 import io.github.mangi.eta.data.model.GeminiTtsModel
 import io.github.mangi.eta.data.model.MiniMaxTtsModel
 import io.github.mangi.eta.data.model.SpeechCredentialField
@@ -168,6 +169,77 @@ internal fun SpeechDeliveryFields(store: SpeechSettingsStore) {
                         },
                     )
                 }
+            }
+        }
+        TtsProvider.EDGE -> {
+            val config = store.settings.edgeTts
+            val rates = listOf(-50, -25, 0, 25, 50, 100)
+            val pitches = listOf(-50, -25, 0, 25, 50)
+            val rateItems = rates.map { if (it > 0) "+$it%" else "$it%" }
+            val pitchItems = pitches.map { if (it > 0) "+${it}Hz" else "${it}Hz" }
+            when (LocalUiStyle.current) {
+                AppearanceUiStyle.COUI -> {
+                    Divider()
+                    CouiDropdownPreference(
+                        title = stringResource(R.string.speech_speed),
+                        items = rateItems,
+                        selectedIndex = rates.indexOf(config.rate).coerceAtLeast(0),
+                        onSelectedIndexChange = { index ->
+                            rates.getOrNull(index)?.let {
+                                store.edit(store.settings.copy(edgeTts = config.copy(rate = it)))
+                            }
+                        },
+                    )
+                    Divider()
+                    CouiDropdownPreference(
+                        title = stringResource(R.string.speech_pitch),
+                        items = pitchItems,
+                        selectedIndex = pitches.indexOf(config.pitch).coerceAtLeast(0),
+                        onSelectedIndexChange = { index ->
+                            pitches.getOrNull(index)?.let {
+                                store.edit(store.settings.copy(edgeTts = config.copy(pitch = it)))
+                            }
+                        },
+                    )
+                }
+                AppearanceUiStyle.MIUIX -> {
+                    OverlayDropdownPreference(
+                        title = stringResource(R.string.speech_speed),
+                        items = rateItems,
+                        selectedIndex = rates.indexOf(config.rate).coerceAtLeast(0),
+                        onSelectedIndexChange = { index ->
+                            rates.getOrNull(index)?.let {
+                                store.edit(store.settings.copy(edgeTts = config.copy(rate = it)))
+                            }
+                        },
+                    )
+                    OverlayDropdownPreference(
+                        title = stringResource(R.string.speech_pitch),
+                        items = pitchItems,
+                        selectedIndex = pitches.indexOf(config.pitch).coerceAtLeast(0),
+                        onSelectedIndexChange = { index ->
+                            pitches.getOrNull(index)?.let {
+                                store.edit(store.settings.copy(edgeTts = config.copy(pitch = it)))
+                            }
+                        },
+                    )
+                }
+            }
+        }
+        TtsProvider.CUSTOM -> {
+            val config = store.settings.customTts
+            SpeechFieldColumn {
+                SpeechField(
+                    label = stringResource(R.string.speech_custom_speed),
+                    value = config.speed.toString(),
+                    onChange = { value ->
+                        value.trim().toFloatOrNull()?.let { speed ->
+                            if (speed in CustomTtsConfig.MIN_SPEED..CustomTtsConfig.MAX_SPEED) {
+                                store.edit(store.settings.copy(customTts = config.copy(speed = speed)))
+                            }
+                        }
+                    },
+                )
             }
         }
         TtsProvider.NONE, TtsProvider.QWEN, TtsProvider.DOUBAO -> Unit

@@ -39,7 +39,8 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 @Composable
 internal fun SpeechConnectionSection(store: SpeechSettingsStore, synthesis: Boolean) {
     if (!synthesis) {
-        QwenDoubaoConnectionSection(store, synthesis = false)
+        if (store.settings.asr == AsrProvider.CUSTOM) CustomAsrConnectionSection(store)
+        else QwenDoubaoConnectionSection(store, synthesis = false)
         return
     }
     when (store.settings.tts) {
@@ -47,6 +48,92 @@ internal fun SpeechConnectionSection(store: SpeechSettingsStore, synthesis: Bool
         TtsProvider.QWEN, TtsProvider.DOUBAO -> QwenDoubaoConnectionSection(store, synthesis = true)
         TtsProvider.GEMINI -> GeminiConnectionSection(store)
         TtsProvider.MINIMAX -> MiniMaxConnectionSection(store)
+        TtsProvider.EDGE -> EdgeConnectionSection(store)
+        TtsProvider.CUSTOM -> CustomTtsConnectionSection(store)
+    }
+}
+
+/** Edge 朗读无需凭据，只留一个可改的服务地址，便于接口变动时指向兼容网关。 */
+@Composable
+private fun EdgeConnectionSection(store: SpeechSettingsStore) {
+    val config = store.settings.edgeTts
+    Column {
+        SpeechGroupCard(title = stringResource(R.string.speech_group_connection)) {
+            SpeechFieldColumn {
+                SpeechField(
+                    label = stringResource(R.string.speech_base_url),
+                    value = config.baseUrl,
+                    onChange = { store.edit(store.settings.copy(edgeTts = config.copy(baseUrl = it.trim()))) },
+                )
+            }
+        }
+        SpeechNote(stringResource(R.string.speech_edge_connection_note))
+    }
+}
+
+@Composable
+private fun CustomTtsConnectionSection(store: SpeechSettingsStore) {
+    val config = store.settings.customTts
+    Column {
+        SpeechGroupCard(title = stringResource(R.string.speech_group_connection)) {
+            SpeechFieldColumn {
+                SpeechField(
+                    label = stringResource(R.string.speech_base_url),
+                    value = config.baseUrl,
+                    onChange = { store.edit(store.settings.copy(customTts = config.copy(baseUrl = it.trim()))) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.speech_service_path),
+                    value = config.path,
+                    onChange = { store.edit(store.settings.copy(customTts = config.copy(path = it.trim()))) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.speech_model_name),
+                    value = config.model,
+                    onChange = { store.edit(store.settings.copy(customTts = config.copy(model = it.trim()))) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.speech_api_key_optional),
+                    value = store.credentials.customTts,
+                    secret = true,
+                    onChange = { store.credential(SpeechCredentialField.CUSTOM_TTS, it.trim()) },
+                )
+            }
+        }
+        SpeechNote(stringResource(R.string.speech_custom_connection_note))
+    }
+}
+
+@Composable
+private fun CustomAsrConnectionSection(store: SpeechSettingsStore) {
+    val config = store.settings.customAsr
+    Column {
+        SpeechGroupCard(title = stringResource(R.string.speech_group_connection)) {
+            SpeechFieldColumn {
+                SpeechField(
+                    label = stringResource(R.string.speech_base_url),
+                    value = config.baseUrl,
+                    onChange = { store.edit(store.settings.copy(customAsr = config.copy(baseUrl = it.trim()))) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.speech_service_path),
+                    value = config.path,
+                    onChange = { store.edit(store.settings.copy(customAsr = config.copy(path = it.trim()))) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.speech_model_name),
+                    value = config.model,
+                    onChange = { store.edit(store.settings.copy(customAsr = config.copy(model = it.trim()))) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.speech_api_key_optional),
+                    value = store.credentials.customAsr,
+                    secret = true,
+                    onChange = { store.credential(SpeechCredentialField.CUSTOM_ASR, it.trim()) },
+                )
+            }
+        }
+        SpeechNote(stringResource(R.string.speech_custom_asr_connection_note))
     }
 }
 

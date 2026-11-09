@@ -1371,4 +1371,39 @@
   <string name="conversation_branch_title">%1$s · 分支</string>
   <string name="conversation_branch_unavailable">無法從此處分支：僅支援上下文完整且工具呼叫已結束的輪次。</string>
   <string name="conversation_branch_failed">建立分支失敗，原對話已保留，請重試。</string>
+  <!-- 微軟 Edge 免費播報與自訂 OpenAI 相容服務 -->
+  <string name="speech_tts_edge">微軟 Edge（免費）</string>
+  <string name="speech_tts_custom">自訂（OpenAI 相容）</string>
+  <string name="speech_asr_custom">自訂（OpenAI 相容）</string>
+  <string name="speech_service_path">服務路徑</string>
+  <string name="speech_model_name">模型</string>
+  <string name="speech_api_key_optional">API Key（選填）</string>
+  <string name="speech_custom_speed">語速（0.25～4）</string>
+  <string name="speech_pitch">音調</string>
+  <string name="speech_asr_note_custom">錄音會上傳到你自己的轉寫服務。明文 HTTP 只允許本機與區域網路位址。</string>
+  <string name="speech_edge_voice_note">微軟 Edge 音色免帳號、免 Key。此介面是公開服務，可能隨微軟調整而變動；若失效可在連線設定中改服務位址。</string>
+  <string name="speech_custom_voice_note">模型與音色由你的服務提供。Eta 只傳送文字，並期望回傳 24 kHz 單聲道 PCM 或 WAV 音訊。</string>
+  <string name="speech_edge_connection_note">Edge 朗讀使用 WebSocket。這是微軟提供的免費非官方介面，可用性不作保證。</string>
+  <string name="speech_custom_connection_note">服務位址加介面路徑，例如 http://192.168.1.10:8000 搭配 /v1/audio/speech。明文 HTTP 僅限本機與區域網路。</string>
+  <string name="speech_custom_asr_connection_note">相容於 /v1/audio/transcriptions，例如 faster-whisper-server、whisper.cpp、LocalAI。明文 HTTP 僅限本機與區域網路。</string>
+  <string name="speech_voice_edge_xiaoxiao">曉曉</string>
+  <string name="speech_voice_edge_xiaoyi">曉伊</string>
+  <string name="speech_voice_edge_yunxi">雲希</string>
+  <string name="speech_voice_edge_yunjian">雲健</string>
+  <string name="speech_voice_edge_xiaobei">曉北（東北）</string>
+  <string name="speech_voice_edge_hiumaan">曉曼（粵語）</string>
+  <string name="speech_voice_edge_hsiaochen">曉臻（台灣）</string>
+  <string name="speech_voice_edge_aria">Aria（英語）</string>
+  <!-- 本機圖片辨識 -->
+  <string name="vision_title">圖片辨識</string>
+  <string name="vision_group_service">本機辨識服務</string>
+  <string name="vision_enabled">啟用本機圖片辨識</string>
+  <string name="vision_enabled_summary">read_image 只把圖片送給下方服務，交給模型的是文字描述</string>
+  <string name="vision_base_url">服務位址</string>
+  <string name="vision_path">服務路徑</string>
+  <string name="vision_model">模型</string>
+  <string name="vision_api_key">API Key（選填）</string>
+  <string name="vision_group_prompt">提示詞</string>
+  <string name="vision_prompt">自訂提示詞</string>
+  <string name="vision_note">只接受本機與區域網路位址，圖片不會被送往網際網路。服務失敗時圖片不會轉交給對話模型；請先修好服務或關閉此開關。提示詞會取代預設的描述要求。</string>
 </resources>

@@ -60,6 +60,7 @@ internal fun AsrProvider.label(): String = stringResource(
         AsrProvider.QWEN_FLASH -> R.string.speech_asr_qwen_flash
         AsrProvider.QWEN_FILE -> R.string.speech_asr_qwen_file
         AsrProvider.DOUBAO -> R.string.speech_asr_doubao
+        AsrProvider.CUSTOM -> R.string.speech_asr_custom
     },
 )
 
@@ -71,6 +72,8 @@ internal fun TtsProvider.label(): String = stringResource(
         TtsProvider.DOUBAO -> R.string.speech_tts_doubao
         TtsProvider.GEMINI -> R.string.speech_tts_gemini
         TtsProvider.MINIMAX -> R.string.speech_tts_minimax
+        TtsProvider.EDGE -> R.string.speech_tts_edge
+        TtsProvider.CUSTOM -> R.string.speech_tts_custom
     },
 )
 
@@ -217,6 +220,25 @@ internal fun SpeechField(
 
 @Composable
 internal fun SpeechSaveBlock(store: SpeechSettingsStore, validate: () -> Unit) {
+    SpeechSaveBlock(
+        loaded = store.loaded,
+        saving = store.saving,
+        message = store.message,
+        messageIsError = store.messageIsError,
+        onClick = { store.save(validate) },
+    )
+}
+
+/** 供没有 [SpeechSettingsStore] 的配置页复用同一套保存按钮与提示。 */
+@Composable
+internal fun SpeechSaveBlock(
+    loaded: Boolean,
+    saving: Boolean,
+    message: String?,
+    messageIsError: Boolean,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
     val uiStyle = LocalUiStyle.current
     Column(
         modifier = Modifier
@@ -225,29 +247,29 @@ internal fun SpeechSaveBlock(store: SpeechSettingsStore, validate: () -> Unit) {
             .padding(top = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val text = stringResource(if (store.saving) R.string.speech_saving else R.string.speech_save)
+        val text = stringResource(if (saving) R.string.speech_saving else R.string.speech_save)
         if (uiStyle == AppearanceUiStyle.COUI) {
             CouiButton(
                 text = text,
-                enabled = store.loaded && !store.saving,
+                enabled = loaded && !saving && enabled,
                 role = CouiButtonRole.Primary,
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { store.save(validate) },
+                onClick = onClick,
             )
         } else {
             TextButton(
                 text = text,
-                enabled = store.loaded && !store.saving,
+                enabled = loaded && !saving && enabled,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.textButtonColorsPrimary(),
-                onClick = { store.save(validate) },
+                onClick = onClick,
             )
         }
-        store.message?.let { message ->
+        message?.let { value ->
             Text(
-                text = message,
+                text = value,
                 style = MiuixTheme.textStyles.footnote2,
-                color = if (store.messageIsError) StatusError else StatusSuccess,
+                color = if (messageIsError) StatusError else StatusSuccess,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp),
             )

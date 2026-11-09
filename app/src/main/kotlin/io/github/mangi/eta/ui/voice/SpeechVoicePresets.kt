@@ -71,11 +71,24 @@ internal object SpeechVoicePresets {
         SpeechVoicePreset("Chinese (Mandarin)_News_Anchor", R.string.speech_voice_minimax_news, R.string.speech_voice_female),
     )
 
+    private val edge = listOf(
+        SpeechVoicePreset("zh-CN-XiaoxiaoNeural", R.string.speech_voice_edge_xiaoxiao, R.string.speech_voice_female),
+        SpeechVoicePreset("zh-CN-XiaoyiNeural", R.string.speech_voice_edge_xiaoyi, R.string.speech_voice_female),
+        SpeechVoicePreset("zh-CN-YunxiNeural", R.string.speech_voice_edge_yunxi, R.string.speech_voice_male),
+        SpeechVoicePreset("zh-CN-YunjianNeural", R.string.speech_voice_edge_yunjian, R.string.speech_voice_male),
+        SpeechVoicePreset("zh-CN-liaoning-XiaobeiNeural", R.string.speech_voice_edge_xiaobei, R.string.speech_voice_female),
+        SpeechVoicePreset("zh-HK-HiuMaanNeural", R.string.speech_voice_edge_hiumaan, R.string.speech_voice_female),
+        SpeechVoicePreset("zh-TW-HsiaoChenNeural", R.string.speech_voice_edge_hsiaochen, R.string.speech_voice_female),
+        SpeechVoicePreset("en-US-AriaNeural", R.string.speech_voice_edge_aria, R.string.speech_voice_female),
+    )
+
     fun forProvider(provider: TtsProvider): List<SpeechVoicePreset> = when (provider) {
         TtsProvider.QWEN -> qwen
         TtsProvider.DOUBAO -> doubao
         TtsProvider.GEMINI -> gemini
         TtsProvider.MINIMAX -> minimax
+        TtsProvider.EDGE -> edge
+        TtsProvider.CUSTOM -> emptyList()
         TtsProvider.NONE -> emptyList()
     }
 }
