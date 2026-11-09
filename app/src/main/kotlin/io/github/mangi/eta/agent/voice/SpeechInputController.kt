@@ -5,6 +5,7 @@ import io.github.mangi.eta.core.AndroidAgentLogger
 import io.github.mangi.eta.data.model.AsrProvider
 import io.github.mangi.eta.data.model.SpeechCredentials
 import io.github.mangi.eta.data.model.SpeechSettings
+import io.github.mangi.eta.data.model.usesRealtimeSocket
 import io.github.mangi.eta.data.repository.SpeechSettingsRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -100,7 +101,7 @@ internal class SpeechInputController(
                         Unit
                     }
                     try {
-                        if (config.asr == AsrProvider.QWEN_REALTIME || config.asr == AsrProvider.DOUBAO) {
+                        if (config.asr.usesRealtimeSocket()) {
                             recognizeStream(
                                 config,
                                 secrets,

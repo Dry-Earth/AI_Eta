@@ -1440,4 +1440,39 @@
   <string name="conversation_branch_title">%1$s · 分支</string>
   <string name="conversation_branch_unavailable">无法从此处分支：仅支持上下文完整且工具调用已结束的轮次。</string>
   <string name="conversation_branch_failed">创建分支失败，原对话已保留，请重试。</string>
+  <!-- 微软 Edge 免费播报与自定义 OpenAI 兼容服务 -->
+  <string name="speech_tts_edge">微软 Edge（免费）</string>
+  <string name="speech_tts_custom">自定义（OpenAI 兼容）</string>
+  <string name="speech_asr_custom">自定义（OpenAI 兼容）</string>
+  <string name="speech_service_path">服务路径</string>
+  <string name="speech_model_name">模型</string>
+  <string name="speech_api_key_optional">API Key（可选）</string>
+  <string name="speech_custom_speed">语速（0.25～4）</string>
+  <string name="speech_pitch">音调</string>
+  <string name="speech_asr_note_custom">录音会上传到你自己的转写服务。明文 HTTP 只允许本机与局域网地址。</string>
+  <string name="speech_edge_voice_note">微软 Edge 音色免账号、免 Key。该接口是公开服务，可能随微软调整而变化；如失效可在连接设置中改服务地址。</string>
+  <string name="speech_custom_voice_note">模型与音色由你的服务提供。Eta 只发送文字，并期望返回 24 kHz 单声道 PCM 或 WAV 音频。</string>
+  <string name="speech_edge_connection_note">Edge 朗读使用 WebSocket。这是微软提供的免费非官方接口，可用性不做保证。</string>
+  <string name="speech_custom_connection_note">服务地址加接口路径，例如 http://192.168.1.10:8000 配 /v1/audio/speech。明文 HTTP 仅限本机与局域网。</string>
+  <string name="speech_custom_asr_connection_note">兼容 /v1/audio/transcriptions，例如 faster-whisper-server、whisper.cpp、LocalAI。明文 HTTP 仅限本机与局域网。</string>
+  <string name="speech_voice_edge_xiaoxiao">晓晓</string>
+  <string name="speech_voice_edge_xiaoyi">晓伊</string>
+  <string name="speech_voice_edge_yunxi">云希</string>
+  <string name="speech_voice_edge_yunjian">云健</string>
+  <string name="speech_voice_edge_xiaobei">晓北（东北）</string>
+  <string name="speech_voice_edge_hiumaan">曉曼（粤语）</string>
+  <string name="speech_voice_edge_hsiaochen">曉臻（台湾）</string>
+  <string name="speech_voice_edge_aria">Aria（英语）</string>
+  <!-- 本地图片识别 -->
+  <string name="vision_title">图片识别</string>
+  <string name="vision_group_service">本地识图服务</string>
+  <string name="vision_enabled">启用本地图片识别</string>
+  <string name="vision_enabled_summary">read_image 只把图片发给下方服务，交给模型的是文字描述</string>
+  <string name="vision_base_url">服务地址</string>
+  <string name="vision_path">服务路径</string>
+  <string name="vision_model">模型</string>
+  <string name="vision_api_key">API Key（可选）</string>
+  <string name="vision_group_prompt">提示词</string>
+  <string name="vision_prompt">自定义提示词</string>
+  <string name="vision_note">只接受本机与局域网地址，图片不会被发往互联网。服务失败时图片不会转交给对话模型；请先修好服务或关闭此开关。提示词会替换默认的描述要求。</string>
 </resources>

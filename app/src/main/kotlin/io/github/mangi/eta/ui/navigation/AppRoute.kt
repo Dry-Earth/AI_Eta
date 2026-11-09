@@ -67,6 +67,9 @@ sealed interface AppRoute : NavKey {
     data object SpeechOss : AppRoute
 
     @Serializable
+    data object ImageRecognition : AppRoute
+
+    @Serializable
     data object DataBackup : AppRoute
 
     @Serializable

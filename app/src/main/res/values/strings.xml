@@ -1459,4 +1459,39 @@
   <string name="conversation_branch_title">%1$s · Branch</string>
   <string name="conversation_branch_unavailable">Cannot branch here: only turns with complete context and finished tool calls are supported.</string>
   <string name="conversation_branch_failed">Could not create a branch. The original conversation has been kept. Please try again.</string>
+  <!-- Edge (free Microsoft) and custom OpenAI-compatible speech providers -->
+  <string name="speech_tts_edge">Microsoft Edge (free)</string>
+  <string name="speech_tts_custom">Custom (OpenAI compatible)</string>
+  <string name="speech_asr_custom">Custom (OpenAI compatible)</string>
+  <string name="speech_service_path">Service path</string>
+  <string name="speech_model_name">Model</string>
+  <string name="speech_api_key_optional">API Key (optional)</string>
+  <string name="speech_custom_speed">Speed (0.25–4)</string>
+  <string name="speech_pitch">Pitch</string>
+  <string name="speech_asr_note_custom">The recording is uploaded to your own transcription service. Plain HTTP is allowed only for localhost and LAN addresses.</string>
+  <string name="speech_edge_voice_note">Free Microsoft Edge voices need no account or key. The service is a public endpoint and may change; adjust the address in the connection settings if it stops working.</string>
+  <string name="speech_custom_voice_note">Model and voice are provided by your own service. Eta sends only text and expects 24 kHz mono PCM or WAV audio in return.</string>
+  <string name="speech_edge_connection_note">Edge read-aloud runs over WebSocket. This is a free, unofficial interface operated by Microsoft, so availability is not guaranteed.</string>
+  <string name="speech_custom_connection_note">Base URL plus path, for example http://192.168.1.10:8000 with /v1/audio/speech. Plain HTTP is limited to localhost and LAN addresses.</string>
+  <string name="speech_custom_asr_connection_note">Works with /v1/audio/transcriptions services such as faster-whisper-server, whisper.cpp and LocalAI. Plain HTTP is limited to localhost and LAN addresses.</string>
+  <string name="speech_voice_edge_xiaoxiao">Xiaoxiao</string>
+  <string name="speech_voice_edge_xiaoyi">Xiaoyi</string>
+  <string name="speech_voice_edge_yunxi">Yunxi</string>
+  <string name="speech_voice_edge_yunjian">Yunjian</string>
+  <string name="speech_voice_edge_xiaobei">Xiaobei (Northeast)</string>
+  <string name="speech_voice_edge_hiumaan">HiuMaan (Cantonese)</string>
+  <string name="speech_voice_edge_hsiaochen">HsiaoChen (Taiwan)</string>
+  <string name="speech_voice_edge_aria">Aria (English)</string>
+  <!-- Local image recognition -->
+  <string name="vision_title">Image recognition</string>
+  <string name="vision_group_service">Local vision service</string>
+  <string name="vision_enabled">Use local image recognition</string>
+  <string name="vision_enabled_summary">read_image sends pictures only to the service below and gives the model text instead</string>
+  <string name="vision_base_url">Service address</string>
+  <string name="vision_path">Service path</string>
+  <string name="vision_model">Model</string>
+  <string name="vision_api_key">API Key (optional)</string>
+  <string name="vision_group_prompt">Prompt</string>
+  <string name="vision_prompt">Custom prompt</string>
+  <string name="vision_note">Only localhost and LAN addresses are accepted, so pictures can never be sent to the internet. If the service fails, the picture is not forwarded to the chat model; fix the service or turn this off first. The prompt replaces the default description instructions.</string>
 </resources>

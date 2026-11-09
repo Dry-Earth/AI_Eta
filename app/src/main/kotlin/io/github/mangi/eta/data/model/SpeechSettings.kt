@@ -3,13 +3,17 @@ package io.github.mangi.eta.data.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class AsrProvider { QWEN_REALTIME, QWEN_FLASH, QWEN_FILE, DOUBAO }
+enum class AsrProvider { QWEN_REALTIME, QWEN_FLASH, QWEN_FILE, DOUBAO, CUSTOM }
 
 @Serializable
-enum class TtsProvider { NONE, QWEN, DOUBAO, GEMINI, MINIMAX }
+enum class TtsProvider { NONE, QWEN, DOUBAO, GEMINI, MINIMAX, EDGE, CUSTOM }
 
 @Serializable
 enum class SpeechRegion { BEIJING, SINGAPORE }
+
+/** 是否由 Eta 与服务保持一条实时双向通道；其余服务都按句逐段请求。 */
+internal fun AsrProvider.usesRealtimeSocket(): Boolean =
+    this == AsrProvider.QWEN_REALTIME || this == AsrProvider.DOUBAO
 
 @Serializable
 data class QwenSpeechConfig(
@@ -58,6 +62,53 @@ data class MiniMaxTtsConfig(
     val speed: Float = 1f,
 )
 
+/**
+ * 微软 Edge「大声朗读」的免费语音合成。无需账号或 API Key，协议与 Edge 浏览器朗读一致，
+ * 属于非官方公开接口，服务地址可改以便接口变动时自行指向兼容网关。
+ */
+@Serializable
+data class EdgeTtsConfig(
+    val baseUrl: String = "wss://speech.platform.bing.com",
+    val voice: String = "zh-CN-XiaoxiaoNeural",
+    /** 语速百分比，与 Edge 朗读的 `rate` 属性一致。 */
+    val rate: Int = 0,
+    /** 音调，单位为 Hz，与 Edge 朗读的 `pitch` 属性一致。 */
+    val pitch: Int = 0,
+) {
+    companion object {
+        const val MIN_RATE = -50
+        const val MAX_RATE = 100
+        const val MIN_PITCH = -50
+        const val MAX_PITCH = 50
+    }
+}
+
+/**
+ * 任意兼容 OpenAI 语音接口的自建服务，例如 llama.cpp、LocalAI、openedai-speech、
+ * GPT-SoVITS 网关等，用于连接本机或局域网内的模型。
+ */
+@Serializable
+data class CustomTtsConfig(
+    val baseUrl: String = "http://127.0.0.1:8000",
+    val path: String = "/v1/audio/speech",
+    val model: String = "tts-1",
+    val voice: String = "alloy",
+    val speed: Float = 1f,
+) {
+    companion object {
+        const val MIN_SPEED = 0.25f
+        const val MAX_SPEED = 4f
+    }
+}
+
+/** 任意兼容 OpenAI `audio/transcriptions` 的自建识别服务，例如 faster-whisper-server、whisper.cpp server。 */
+@Serializable
+data class CustomAsrConfig(
+    val baseUrl: String = "http://127.0.0.1:8000",
+    val path: String = "/v1/audio/transcriptions",
+    val model: String = "whisper-1",
+)
+
 @Serializable
 data class SpeechOssConfig(
     val region: String = "cn-beijing",
@@ -82,6 +133,9 @@ data class SpeechSettings(
     val doubaoVoice: String = "zh_female_vv_uranus_bigtts",
     val geminiTts: GeminiTtsConfig = GeminiTtsConfig(),
     val minimaxTts: MiniMaxTtsConfig = MiniMaxTtsConfig(),
+    val edgeTts: EdgeTtsConfig = EdgeTtsConfig(),
+    val customTts: CustomTtsConfig = CustomTtsConfig(),
+    val customAsr: CustomAsrConfig = CustomAsrConfig(),
     val oss: SpeechOssConfig = SpeechOssConfig(),
     /** 助手浮窗停顿多久后自动发送；0 表示只在用户点击完成或松手时发送。 */
     val autoSendSilenceMs: Int = DEFAULT_AUTO_SEND_SILENCE_MS,
@@ -98,6 +152,7 @@ data class SpeechSettings(
 
 internal enum class SpeechCredentialField {
     QWEN_ASR, QWEN_TTS, DOUBAO_ASR, DOUBAO_TTS, GEMINI_TTS, MINIMAX_TTS, OSS_KEY_ID, OSS_KEY_SECRET,
+    CUSTOM_TTS, CUSTOM_ASR, VISION,
 }
 
 /** 凭据不属于 Settings，避免被普通配置导出或调试输出带出。 */
@@ -111,6 +166,11 @@ class SpeechCredentials(
     val ossAccessKeySecret: String = "",
     val geminiTts: String = "",
     val minimaxTts: String = "",
+    /** 自建语音服务通常不校验凭据；有些网关需要固定 Key，因此留一个可空字段。 */
+    val customTts: String = "",
+    val customAsr: String = "",
+    /** 图片识别的可选 Key；与语音凭据共用同一套 Keystore 加密存储。 */
+    val vision: String = "",
 ) {
     internal fun withValue(field: SpeechCredentialField, value: String): SpeechCredentials = SpeechCredentials(
         qwenAsr = if (field == SpeechCredentialField.QWEN_ASR) value else qwenAsr,
@@ -121,6 +181,9 @@ class SpeechCredentials(
         ossAccessKeySecret = if (field == SpeechCredentialField.OSS_KEY_SECRET) value else ossAccessKeySecret,
         geminiTts = if (field == SpeechCredentialField.GEMINI_TTS) value else geminiTts,
         minimaxTts = if (field == SpeechCredentialField.MINIMAX_TTS) value else minimaxTts,
+        customTts = if (field == SpeechCredentialField.CUSTOM_TTS) value else customTts,
+        customAsr = if (field == SpeechCredentialField.CUSTOM_ASR) value else customAsr,
+        vision = if (field == SpeechCredentialField.VISION) value else vision,
     )
 
     override fun toString(): String = "SpeechCredentials(redacted)"

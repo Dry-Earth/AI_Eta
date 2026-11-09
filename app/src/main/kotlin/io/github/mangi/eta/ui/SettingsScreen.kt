@@ -23,6 +23,7 @@ import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.GppMaybe
 import androidx.compose.material.icons.rounded.Hearing
 import androidx.compose.material.icons.rounded.Hub
+import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.ImportContacts
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Inventory
@@ -648,6 +649,12 @@ private fun SettingsPageContent(
                         onClick = { onNavigate(AppRoute.SpeechSettings) },
                     )
                     CouiIconDivider()
+                    CouiPreference(
+                        title = stringResource(R.string.vision_title),
+                        icon = { CouiSettingsIcon(Icons.Rounded.Image, SettingsIconColors.Blue) },
+                        onClick = { onNavigate(AppRoute.ImageRecognition) },
+                    )
+                    CouiIconDivider()
                     LanguagePreference(
                         iconTint = SettingsIconColors.Blue,
                         startAction = {
@@ -1079,6 +1086,11 @@ private fun SettingsPageContent(
                             title = stringResource(R.string.speech_settings_title),
                             startAction = { SettingsIcon(icon = Icons.Rounded.Mic, tint = SettingsIconColors.Blue) },
                             onClick = { onNavigate(AppRoute.SpeechSettings) },
+                        )
+                        ArrowPreference(
+                            title = stringResource(R.string.vision_title),
+                            startAction = { SettingsIcon(icon = Icons.Rounded.Image, tint = SettingsIconColors.Blue) },
+                            onClick = { onNavigate(AppRoute.ImageRecognition) },
                         )
                         LanguagePreference(
                             iconTint = SettingsIconColors.Blue,

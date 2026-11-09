@@ -66,6 +66,40 @@ Eta 上传 WAV 后生成有效期 15 分钟的读取签名 URL，向百炼提交
 - `SpeechSettingsRepository` 隔离持久化；普通配置进入现有 DataStore，凭据用 Android Keystore 的 AES-GCM 加密后保存。凭据不进入 RemotePreferences、会话、日志或数据导出；语音配置目前也不纳入手动备份。不可解密的凭据会要求重新填写，不静默当作空配置。
 - 设置页、聊天与浮窗复用相同控制器；网络与音频循环不进入 Composable、Hook 或 Agent loop，Runtime IPC 与归档格式保持兼容。
 
+## 免费与自建语音服务
+
+### 微软 Edge（免费）
+
+「播报」页选择「微软 Edge（免费）」即可使用，不需要账号或 API Key：
+
+- 协议与 Edge 浏览器的「大声朗读」一致：WebSocket 提交 SSML，服务返回 24 kHz MP3。
+- 客户端用系统 `MediaCodec` 解码成 24 kHz 单声道 PCM16，再走与其它服务相同的逐段播放链路（段首段尾各 5 ms 淡入淡出），因此不需要额外的播放器。
+- 音色预设覆盖普通话、东北话、粤语、台湾腔与英文 Aria；也可填写自定义音色 ID，并调整语速（-50%～+100%）与音调（-50～+50 Hz）。
+- 这是微软提供的免费公开接口，不属于正式商用 API，可能随时调整；连接设置中可以修改 `wss://` 服务地址以指向兼容网关。
+- 合成失败会直接报错，不会回落到其它播报服务。
+
+### 自定义 OpenAI 兼容服务（本机 / 局域网）
+
+把本机或局域网内的模型接进 Eta：
+
+| 用途 | 接口 | 说明 |
+| --- | --- | --- |
+| 语音合成 | `POST {base}{path}`，默认 `/v1/audio/speech` | 请求 `response_format=pcm`，接受 24 kHz 单声道 PCM16 或 WAV |
+| 语音识别 | `POST {base}{path}`，默认 `/v1/audio/transcriptions` | multipart 上传 WAV，读取响应中的 `text` |
+
+- 地址可填 `http://127.0.0.1:8000`、`http://192.168.1.10:8080` 这类本机/局域网地址；公网地址仍然要求 HTTPS。
+- API Key 可留空；网关要求固定 Key（例如 vLLM、LocalAI）时再填。
+- 识别是「录音结束后一次性上传」，不支持流式预览；录音仍受 60 秒上限约束。
+- 失败不会自动切换到其它供应商，也不会重试到别的域名。
+
+## 地址策略
+
+`LocalEndpointPolicy` 统一约束所有自建地址：
+
+- 云端服务（千问、豆包、Gemini、MiniMax、Edge）只接受 HTTPS/WSS，且不允许 URL 内嵌账号密码或查询参数。
+- 明文 HTTP 只放行环回（`127.0.0.0/8`、`::1`）、私有网段（`10/8`、`172.16/12`、`192.168/16`）、链路本地（`169.254/16`、`fe80::/10`）、CGNAT（`100.64/10`）、唯一本地 IPv6（`fc00::/7`），以及 `*.local`、`*.lan`、`*.home.arpa`。
+- 服务路径必须是站内绝对路径，拒绝 `..`、查询串和片段。
+
 ## 官方资料
 
 - [Compose Insets 布局时序](https://developer.android.com/develop/ui/compose/system/insets-ui)、[Android 输入法动画](https://developer.android.com/develop/ui/views/layout/sw-keyboard)
