@@ -82,13 +82,33 @@ class EdgeTtsCodecTest {
         assertTrue(EdgeTtsCodec.DRM_VERSION.startsWith("2-"))
     }
 
-    @Test fun timestampIsSecondPrecisionUtc() {
-        assertTrue(Regex("""\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}""").matches(EdgeTtsCodec.timestamp(0)))
+    @Test fun timestampMatchesJsDateFormat() {
+        // edge-tts SDK 发送的是 JS `Date` 风格字符串，末尾由协议层补 Z。
+        assertTrue(
+            Regex("""\w{3} \w{3} \d{2} \d{4} \d{2}:\d{2}:\d{2} GMT\+0000 \(Coordinated Universal Time\)""")
+                .matches(EdgeTtsCodec.timestamp(0)),
+        )
     }
 
     @Test fun configMessageRequestsMp3At24k() {
         val config = EdgeTtsCodec.configMessage()
         assertTrue(config.contains(EdgeTtsCodec.OUTPUT_FORMAT))
         assertTrue(EdgeTtsCodec.OUTPUT_FORMAT.startsWith("audio-24khz"))
+    }
+
+    /** 服务端按 Path 分派文本帧，缺 `Path:speech.config` / `Path:ssml` 会拿不到音频。 */
+    @Test fun textFramesCarryPathHeaders() {
+        val config = EdgeTtsCodec.configMessage("Thu Jan 01 2026 00:00:00 GMT+0000 (Coordinated Universal Time)")
+        assertTrue(config.startsWith("X-Timestamp:Thu Jan 01 2026"))
+        assertTrue(config.contains("Content-Type:application/json; charset=utf-8"))
+        assertTrue(config.contains("Path:speech.config"))
+        assertTrue(config.contains("\r\n\r\n{"))
+        assertTrue(config.endsWith("\r\n"))
+
+        val speech = EdgeTtsCodec.speechMessage("abc123", "Thu Jan 01 2026 00:00:00 GMT+0000 (Coordinated Universal Time)", "<speak/>")
+        assertTrue(speech.startsWith("X-RequestId:abc123"))
+        assertTrue(speech.contains("Content-Type:application/ssml+xml"))
+        assertTrue(speech.contains("Path:ssml"))
+        assertTrue(speech.endsWith("\r\n\r\n<speak/>"))
     }
 }
