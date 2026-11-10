@@ -1394,6 +1394,10 @@
   <string name="speech_voice_edge_hiumaan">曉曼（粵語）</string>
   <string name="speech_voice_edge_hsiaochen">曉臻（台灣）</string>
   <string name="speech_voice_edge_aria">Aria（英語）</string>
+  <string name="speech_asr_whisper_local">本機 Whisper（裝置內）</string>
+  <string name="speech_whisper_model_path">模型檔案路徑（留空用內建）</string>
+  <string name="speech_asr_note_whisper">在本機執行 whisper.cpp，音訊不離開裝置。預設使用內建的 small 模型；填寫自訂 ggml 路徑即可替換。</string>
+  <string name="speech_whisper_connection_note">只支援 ggml 格式的 whisper 模型（例如 ggml-small-q5_1.bin）。自訂檔案會原地讀取、不複製，請放在重新開機後仍可存取的目錄。</string>
   <!-- 本機圖片辨識 -->
   <string name="vision_title">圖片辨識</string>
   <string name="vision_group_service">本機辨識服務</string>

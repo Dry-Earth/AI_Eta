@@ -39,8 +39,11 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 @Composable
 internal fun SpeechConnectionSection(store: SpeechSettingsStore, synthesis: Boolean) {
     if (!synthesis) {
-        if (store.settings.asr == AsrProvider.CUSTOM) CustomAsrConnectionSection(store)
-        else QwenDoubaoConnectionSection(store, synthesis = false)
+        when (store.settings.asr) {
+            AsrProvider.CUSTOM -> CustomAsrConnectionSection(store)
+            AsrProvider.WHISPER_LOCAL -> WhisperLocalConnectionSection(store)
+            else -> QwenDoubaoConnectionSection(store, synthesis = false)
+        }
         return
     }
     when (store.settings.tts) {
@@ -101,6 +104,24 @@ private fun CustomTtsConnectionSection(store: SpeechSettingsStore) {
             }
         }
         SpeechNote(stringResource(R.string.speech_custom_connection_note))
+    }
+}
+
+/** 本地 whisper 只暴露一个可选的模型路径，留空即用随包内置的 ggml 模型。 */
+@Composable
+private fun WhisperLocalConnectionSection(store: SpeechSettingsStore) {
+    val config = store.settings.localWhisper
+    Column {
+        SpeechGroupCard(title = stringResource(R.string.speech_group_connection)) {
+            SpeechFieldColumn {
+                SpeechField(
+                    label = stringResource(R.string.speech_whisper_model_path),
+                    value = config.modelPath,
+                    onChange = { store.edit(store.settings.copy(localWhisper = config.copy(modelPath = it.trim()))) },
+                )
+            }
+        }
+        SpeechNote(stringResource(R.string.speech_whisper_connection_note))
     }
 }
 

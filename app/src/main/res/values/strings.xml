@@ -1482,6 +1482,10 @@
   <string name="speech_voice_edge_hiumaan">HiuMaan (Cantonese)</string>
   <string name="speech_voice_edge_hsiaochen">HsiaoChen (Taiwan)</string>
   <string name="speech_voice_edge_aria">Aria (English)</string>
+  <string name="speech_asr_whisper_local">Local Whisper (on device)</string>
+  <string name="speech_whisper_model_path">Model file path (empty = bundled)</string>
+  <string name="speech_asr_note_whisper">Runs whisper.cpp on this phone; audio never leaves the device. The bundled small model is used unless you point to your own ggml file.</string>
+  <string name="speech_whisper_connection_note">Only ggml whisper models work here (for example ggml-small-q5_1.bin). A custom file is read in place without copying, so keep it somewhere readable after reboot.</string>
   <!-- Local image recognition -->
   <string name="vision_title">Image recognition</string>
   <string name="vision_group_service">Local vision service</string>

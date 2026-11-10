@@ -82,6 +82,7 @@ internal fun SpeechRecognitionScreen(onBack: () -> Unit, onOpenOss: () -> Unit) 
                                 AsrProvider.QWEN_FLASH -> R.string.speech_asr_note_flash
                                 AsrProvider.QWEN_FILE -> R.string.speech_asr_note_file
                                 AsrProvider.CUSTOM -> R.string.speech_asr_note_custom
+                                AsrProvider.WHISPER_LOCAL -> R.string.speech_asr_note_whisper
                             },
                         ),
                     )
@@ -156,6 +157,7 @@ internal fun SpeechRecognitionScreen(onBack: () -> Unit, onOpenOss: () -> Unit) 
                                         AsrProvider.QWEN_FLASH -> R.string.speech_asr_note_flash
                                         AsrProvider.QWEN_FILE -> R.string.speech_asr_note_file
                                         AsrProvider.CUSTOM -> R.string.speech_asr_note_custom
+                                        AsrProvider.WHISPER_LOCAL -> R.string.speech_asr_note_whisper
                                     },
                                 ),
                             )

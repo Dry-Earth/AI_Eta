@@ -91,6 +91,16 @@ android {
 
     androidResources {
         localeFilters += listOf("en", "b+zh+Hans", "b+zh+Hant")
+        // 内置的 whisper 模型是 ggml 二进制，再压缩既拖慢构建也拖慢首次拷贝。
+        noCompress += "bin"
+    }
+
+    // 本地语音识别：whisper.cpp 以源码形式在构建期拉取并编译成 arm64 库。
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     packaging {

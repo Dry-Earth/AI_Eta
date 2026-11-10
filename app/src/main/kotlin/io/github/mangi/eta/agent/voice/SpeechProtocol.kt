@@ -98,6 +98,12 @@ internal fun validateSpeechSettings(settings: SpeechSettings, secrets: SpeechCre
             customServiceUrl(settings.customAsr, settings.customAsr.path)
             required(settings.customAsr.model, "语音识别模型")
         }
+        // 本地 whisper 使用内置模型，地址与凭据都不是必需项。
+        AsrProvider.WHISPER_LOCAL -> {
+            if (settings.localWhisper.threads !in 0..8) {
+                throw SpeechFailure(SpeechErrorCode.CONFIGURATION, "本地识别线程数须在 0～8 之间")
+            }
+        }
         AsrProvider.QWEN_REALTIME,
         AsrProvider.QWEN_FLASH,
         AsrProvider.QWEN_FILE,

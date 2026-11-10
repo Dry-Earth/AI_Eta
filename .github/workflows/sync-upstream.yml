@@ -126,6 +126,9 @@ jobs:
       - name: 校验定制功能仍在
         run: bash scripts/verify-fork-features.sh
 
+      - name: 准备内置 whisper 模型
+        run: bash scripts/fetch-whisper-model.sh
+
       - name: Lint、单元测试与 Debug 构建
         env:
           HEAD_SHA: ${{ github.sha }}

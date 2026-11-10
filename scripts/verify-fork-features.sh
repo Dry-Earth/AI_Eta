@@ -47,6 +47,14 @@ check_content "app/src/main/kotlin/io/github/mangi/eta/agent/tool/AgentImageTool
 check_content "app/src/main/kotlin/io/github/mangi/eta/agent/vision/LocalVisionClient.kt" "只允许本机或局域网" "识图公网地址拦截"
 check_content "app/src/main/kotlin/io/github/mangi/eta/data/model/ImageRecognitionSettings.kt" "prompt" "识图自定义提示词"
 
+# 设备内 whisper 识别（内置模型 + 可替换模型路径）
+check_file "app/src/main/cpp/CMakeLists.txt"
+check_file "app/src/main/cpp/eta_whisper_jni.cpp"
+check_file "app/src/main/kotlin/io/github/mangi/eta/agent/voice/LocalWhisperRecognizer.kt"
+check_content "app/src/main/kotlin/io/github/mangi/eta/agent/voice/FileSpeechRecognition.kt" "WHISPER_LOCAL" "本地识别分发"
+check_content "app/build.gradle.kts" "externalNativeBuild" "whisper 原生构建配置"
+check_content "app/src/main/kotlin/io/github/mangi/eta/data/model/SpeechSettings.kt" "LocalWhisperConfig" "本地识别配置"
+
 # 设置入口与文案
 check_content "app/src/main/kotlin/io/github/mangi/eta/ui/navigation/AppRoute.kt" "ImageRecognition" "图片识别路由"
 check_content "app/src/main/res/values/strings.xml" "vision_note" "图片识别文案"

@@ -25,3 +25,13 @@ runs:
     - name: 安装 Android SDK 37
       shell: bash
       run: sdkmanager --channel=3 "platforms;android-37.0"
+
+    # 本地语音识别需要编译 whisper.cpp：先接受许可并预装，失败时由 Gradle 自动下载。
+    - name: 安装 NDK 与 CMake
+      shell: bash
+      run: |
+        yes | sdkmanager --licenses >/dev/null 2>&1 || true
+        sdkmanager --channel=3 "cmake;3.22.1" >/dev/null 2>&1 \
+          || echo "::warning::CMake 3.22.1 预装失败，交给 Gradle 自动下载"
+        sdkmanager --channel=3 "ndk;30.0.16248370" >/dev/null 2>&1 \
+          || echo "::warning::NDK 30.0.16248370 预装失败，交给 Gradle 自动下载"

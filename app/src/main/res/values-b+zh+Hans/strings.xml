@@ -1463,6 +1463,10 @@
   <string name="speech_voice_edge_hiumaan">曉曼（粤语）</string>
   <string name="speech_voice_edge_hsiaochen">曉臻（台湾）</string>
   <string name="speech_voice_edge_aria">Aria（英语）</string>
+  <string name="speech_asr_whisper_local">本地 Whisper（设备内）</string>
+  <string name="speech_whisper_model_path">模型文件路径（留空用内置）</string>
+  <string name="speech_asr_note_whisper">在本机运行 whisper.cpp，音频不出设备。默认使用内置的 small 模型；填写自定义 ggml 路径即可替换。</string>
+  <string name="speech_whisper_connection_note">只支持 ggml 格式的 whisper 模型（例如 ggml-small-q5_1.bin）。自定义文件会原地读取、不复制，请放在重启后仍可访问的目录。</string>
   <!-- 本地图片识别 -->
   <string name="vision_title">图片识别</string>
   <string name="vision_group_service">本地识图服务</string>

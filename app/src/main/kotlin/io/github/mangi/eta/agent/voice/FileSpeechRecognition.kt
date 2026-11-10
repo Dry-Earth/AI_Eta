@@ -20,6 +20,14 @@ internal suspend fun recognizeSpeechFile(context: Context, settings: SpeechSetti
         when (settings.asr) {
             AsrProvider.CUSTOM ->
                 recognizeCustomSpeech(settings.customAsr, credentials.customAsr, wav, settings.language, onProgress)
+            AsrProvider.WHISPER_LOCAL ->
+                LocalWhisperRecognizer.transcribe(
+                    context,
+                    settings.localWhisper,
+                    wav,
+                    settings.language,
+                    onProgress,
+                )
             AsrProvider.QWEN_FLASH -> recognizeQwenFlash(settings, credentials, wav, onProgress)
             else -> recognizeQwenFile(context, settings, credentials, wav, onProgress)
         }

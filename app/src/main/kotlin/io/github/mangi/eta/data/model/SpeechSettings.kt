@@ -3,7 +3,7 @@ package io.github.mangi.eta.data.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class AsrProvider { QWEN_REALTIME, QWEN_FLASH, QWEN_FILE, DOUBAO, CUSTOM }
+enum class AsrProvider { QWEN_REALTIME, QWEN_FLASH, QWEN_FILE, DOUBAO, CUSTOM, WHISPER_LOCAL }
 
 @Serializable
 enum class TtsProvider { NONE, QWEN, DOUBAO, GEMINI, MINIMAX, EDGE, CUSTOM }
@@ -109,6 +109,19 @@ data class CustomAsrConfig(
     val model: String = "whisper-1",
 )
 
+/**
+ * 设备本地 whisper.cpp 识别。
+ *
+ * 默认使用随包内置的 `ggml-small-q5_1` 模型；[modelPath] 非空时优先使用用户自己准备的
+ * ggml 模型文件（方便后期替换更大的模型），音频始终不离开设备。
+ */
+@Serializable
+data class LocalWhisperConfig(
+    val modelPath: String = "",
+    /** 0 表示按设备核心数自动选择。 */
+    val threads: Int = 0,
+)
+
 @Serializable
 data class SpeechOssConfig(
     val region: String = "cn-beijing",
@@ -136,6 +149,7 @@ data class SpeechSettings(
     val edgeTts: EdgeTtsConfig = EdgeTtsConfig(),
     val customTts: CustomTtsConfig = CustomTtsConfig(),
     val customAsr: CustomAsrConfig = CustomAsrConfig(),
+    val localWhisper: LocalWhisperConfig = LocalWhisperConfig(),
     val oss: SpeechOssConfig = SpeechOssConfig(),
     /** 助手浮窗停顿多久后自动发送；0 表示只在用户点击完成或松手时发送。 */
     val autoSendSilenceMs: Int = DEFAULT_AUTO_SEND_SILENCE_MS,
