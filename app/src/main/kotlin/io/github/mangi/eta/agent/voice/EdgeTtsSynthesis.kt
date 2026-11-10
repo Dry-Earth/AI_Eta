@@ -26,9 +26,12 @@ internal suspend fun synthesizeEdgeTts(
 ) {
     val base = edgeSpeechBase(config.baseUrl)
     val token = EdgeTtsCodec.TRUSTED_CLIENT_TOKEN
+    val now = System.currentTimeMillis()
+    // ConnectionId 是 edge-tts SDK 必带的查询参数，缺失时服务端会直接断开。
     val url = "$base/consumer/speech/synthesize/readaloud/edge/v1" +
         "?TrustedClientToken=$token" +
-        "&Sec-MS-GEC=${EdgeTtsCodec.drmToken(System.currentTimeMillis())}" +
+        "&ConnectionId=${EdgeTtsCodec.connectionId()}" +
+        "&Sec-MS-GEC=${EdgeTtsCodec.drmToken(now)}" +
         "&Sec-MS-GEC-Version=${EdgeTtsCodec.DRM_VERSION}"
     val request = Request.Builder()
         .url(url)
@@ -41,11 +44,11 @@ internal suspend fun synthesizeEdgeTts(
     val audio = ByteArrayOutputStream()
     EdgeSpeechSocket(request).use { socket ->
         socket.awaitReady()
-        socket.text(EdgeTtsCodec.configMessage())
+        socket.text(EdgeTtsCodec.configMessage(EdgeTtsCodec.timestamp(now)))
         socket.text(
             EdgeTtsCodec.speechMessage(
                 requestId = EdgeTtsCodec.requestId(),
-                timestamp = EdgeTtsCodec.timestamp(System.currentTimeMillis()),
+                timestamp = EdgeTtsCodec.timestamp(now),
                 ssml = EdgeTtsCodec.ssml(config.voice, config.rate, config.pitch, text),
             ),
         )

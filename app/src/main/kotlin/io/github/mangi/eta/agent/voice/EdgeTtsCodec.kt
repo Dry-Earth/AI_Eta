@@ -48,7 +48,7 @@ internal object EdgeTtsCodec {
         val rateValue = if (rate >= 0) "+$rate%" else "$rate%"
         val pitchValue = if (pitch >= 0) "+${pitch}Hz" else "${pitch}Hz"
         return "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>" +
-            "<voice name='$voiceName'><prosody rate='$rateValue' pitch='$pitchValue'>" +
+            "<voice name='$voiceName'><prosody pitch='$pitchValue' rate='$rateValue' volume='+0%'>" +
             escapeText(text) +
             "</prosody></voice></speak>"
     }
@@ -68,18 +68,34 @@ internal object EdgeTtsCodec {
         ),
     ).toString()
 
-    /** 文本帧由若干行头和一个空行组成，正文是 SSML。 */
+    /**
+     * 命令请求同样带 `Path:speech.config` 头，与 edge-tts SDK 的报文一致；
+     * 服务端按 Path 分派消息，裸 JSON 会被当作无效帧。
+     */
+    fun configMessage(timestamp: String): String =
+        "X-Timestamp:$timestamp\r\n" +
+            "Content-Type:application/json; charset=utf-8\r\n" +
+            "Path:speech.config\r\n\r\n" +
+            configMessage() +
+            "\r\n"
+
+    /** 文本帧由若干行头和一个空行组成，正文是 SSML；`Path:ssml` 是服务端分派依据。 */
     fun speechMessage(requestId: String, timestamp: String, ssml: String): String =
         "X-RequestId:$requestId\r\n" +
             "Content-Type:application/ssml+xml\r\n" +
-            "X-Timestamp:${timestamp}Z\r\n\r\n" +
+            "X-Timestamp:${timestamp}Z\r\n" +
+            "Path:ssml\r\n\r\n" +
             ssml
 
     fun requestId(): String = java.util.UUID.randomUUID().toString().replace("-", "")
 
-    fun timestamp(epochMillis: Long): String = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
-        .apply { timeZone = TimeZone.getTimeZone("UTC") }
-        .format(Date(epochMillis))
+    fun connectionId(): String = requestId()
+
+    /** 服务端只校验格式，但 edge-tts SDK 用的是 JS `Date` 风格字符串，这里保持一致。 */
+    fun timestamp(epochMillis: Long): String =
+        SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss 'GMT+0000 (Coordinated Universal Time)'", Locale.US)
+            .apply { timeZone = TimeZone.getTimeZone("UTC") }
+            .format(Date(epochMillis))
 
     /**
      * Edge 的 `Sec-MS-GEC` 令牌，格式为 `<CS64>-<SHA256>`，每 300 秒换一次。
