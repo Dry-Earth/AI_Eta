@@ -166,6 +166,6 @@ internal fun SpeechDeliveryFields(store: SpeechSettingsStore) {
                 }
             }
         }
-        TtsProvider.NONE, TtsProvider.QWEN, TtsProvider.DOUBAO -> Unit
+        TtsProvider.NONE, TtsProvider.QWEN, TtsProvider.DOUBAO, TtsProvider.SYSTEM -> Unit
     }
 }

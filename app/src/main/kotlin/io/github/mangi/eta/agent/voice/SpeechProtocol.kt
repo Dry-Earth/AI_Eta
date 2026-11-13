@@ -67,8 +67,11 @@ internal fun validateSpeechSettings(settings: SpeechSettings, secrets: SpeechCre
                     throw SpeechFailure(SpeechErrorCode.CONFIGURATION, "朗读风格请控制在 500 字以内")
                 }
             }
+            // 系统内置合成引擎不需要地址与凭据，可用性在合成时检测。
+            TtsProvider.SYSTEM -> Unit
         }
     } else when (settings.asr) {
+        AsrProvider.SYSTEM -> Unit
         AsrProvider.MIMO -> {
             required(secrets.mimoAsr, "MiMo 识别 API Key")
             speechBaseUrl(settings.mimoAsr.baseUrl)

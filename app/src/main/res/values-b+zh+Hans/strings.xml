@@ -1488,4 +1488,9 @@
   <string name="assistant_overlay_settings_follow_primary_hint">默认继承主对话当前使用的模型</string>
   <string name="assistant_overlay_settings_reasoning_follow_default">跟随默认</string>
   <string name="assistant_overlay_settings_note">单独配置电源键或系统助手唤起的全局对话浮窗所使用的模型与思考等级；日常轻量指令可选用响应更快的轻量模型并降低或关闭思考，主对话仍保留主力模型。</string>
+  <!-- 系统内置语音引擎 -->
+  <string name="speech_asr_system">系统内置（已装引擎）</string>
+  <string name="speech_tts_system">系统内置（已装引擎）</string>
+  <string name="speech_asr_note_system">调用本机已安装的语音识别服务，例如 Marmalade STT。Eta 不自己录音；未安装识别引擎时会直接报错。</string>
+  <string name="speech_tts_system_note">调用本机已安装的语音合成引擎，例如 CloneTTS。音频在本机合成，由 Eta 播放。</string>
 </resources>

@@ -1507,4 +1507,9 @@
   <string name="assistant_overlay_settings_follow_primary_hint">Uses the default main conversation model</string>
   <string name="assistant_overlay_settings_reasoning_follow_default">Follow default</string>
   <string name="assistant_overlay_settings_note">Independently configure the model and reasoning level for the floating assistant triggered by the power key or system assistant. For quick everyday tasks, choosing a fast lightweight model with lower or disabled reasoning helps reduce latency and token usage.</string>
+  <!-- 系统内置语音引擎 -->
+  <string name="speech_asr_system">System (installed engine)</string>
+  <string name="speech_tts_system">System (installed engine)</string>
+  <string name="speech_asr_note_system">Uses the speech recognition service installed on this device, for example Marmalade STT. Eta does not record audio itself; if no engine is installed this option reports an error.</string>
+  <string name="speech_tts_system_note">Uses the text-to-speech engine installed on this device, for example CloneTTS. Audio is synthesised locally and played by Eta.</string>
 </resources>

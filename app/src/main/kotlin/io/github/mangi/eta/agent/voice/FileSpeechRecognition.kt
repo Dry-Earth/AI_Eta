@@ -32,6 +32,10 @@ internal suspend fun recognizeSpeechFile(
                 recognizeQwenShortAudio(settings, credentials, wav)
             }
             AsrProvider.QWEN_FILE -> recognizeQwenFile(context, settings, credentials, wav, onProgress)
+            AsrProvider.SYSTEM -> throw SpeechFailure(
+                SpeechErrorCode.CONFIGURATION,
+                "系统语音识别不使用文件转写",
+            )
             AsrProvider.QWEN_REALTIME, AsrProvider.DOUBAO ->
                 throw SpeechFailure(SpeechErrorCode.CONFIGURATION, "当前语音服务需要流式识别")
         }

@@ -5,10 +5,10 @@ import kotlinx.serialization.Serializable
 private const val MIMO_SPEECH_BASE_URL = "https://api.xiaomimimo.com/v1"
 
 @Serializable
-enum class AsrProvider { QWEN_REALTIME, QWEN_FLASH, QWEN_FILE, DOUBAO, MIMO }
+enum class AsrProvider { QWEN_REALTIME, QWEN_FLASH, QWEN_FILE, DOUBAO, MIMO, SYSTEM }
 
 @Serializable
-enum class TtsProvider { NONE, QWEN, DOUBAO, GEMINI, MINIMAX, MIMO }
+enum class TtsProvider { NONE, QWEN, DOUBAO, GEMINI, MINIMAX, MIMO, SYSTEM }
 
 @Serializable
 enum class SpeechRegion { BEIJING, SINGAPORE }

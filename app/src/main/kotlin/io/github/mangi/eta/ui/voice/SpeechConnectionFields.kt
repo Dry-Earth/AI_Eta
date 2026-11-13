@@ -41,6 +41,7 @@ internal fun SpeechConnectionSection(store: SpeechSettingsStore, synthesis: Bool
     if (!synthesis) {
         when (store.settings.asr) {
             AsrProvider.MIMO -> MimoAsrConnectionSection(store)
+            AsrProvider.SYSTEM -> SpeechNote(stringResource(R.string.speech_asr_note_system))
             AsrProvider.QWEN_REALTIME, AsrProvider.QWEN_FLASH, AsrProvider.QWEN_FILE, AsrProvider.DOUBAO ->
                 QwenDoubaoConnectionSection(store, synthesis = false)
         }
@@ -52,6 +53,7 @@ internal fun SpeechConnectionSection(store: SpeechSettingsStore, synthesis: Bool
         TtsProvider.GEMINI -> GeminiConnectionSection(store)
         TtsProvider.MINIMAX -> MiniMaxConnectionSection(store)
         TtsProvider.MIMO -> MimoTtsConnectionSection(store)
+        TtsProvider.SYSTEM -> SpeechNote(stringResource(R.string.speech_tts_system_note))
     }
 }
 

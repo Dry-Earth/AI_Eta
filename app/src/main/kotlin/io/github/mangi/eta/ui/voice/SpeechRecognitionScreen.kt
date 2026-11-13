@@ -49,10 +49,11 @@ internal fun SpeechRecognitionScreen(onBack: () -> Unit, onOpenOss: () -> Unit) 
         AsrProvider.QWEN_FLASH -> R.string.speech_asr_note_flash
         AsrProvider.QWEN_FILE -> R.string.speech_asr_note_file
         AsrProvider.MIMO -> R.string.speech_asr_note_mimo
+        AsrProvider.SYSTEM -> R.string.speech_asr_note_system
     }
     val showQwenLanguage = when (settings.asr) {
         AsrProvider.QWEN_REALTIME, AsrProvider.QWEN_FLASH, AsrProvider.QWEN_FILE -> true
-        AsrProvider.DOUBAO, AsrProvider.MIMO -> false
+        AsrProvider.DOUBAO, AsrProvider.MIMO, AsrProvider.SYSTEM -> false
     }
 
     when (LocalUiStyle.current) {

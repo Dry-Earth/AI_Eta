@@ -1,0 +1,167 @@
+name: Sync Upstream and Build
+
+# 上游 Eta 一更新就把改动合并进来，并在同一轮里验证本仓库新增的语音/识图功能仍然存在，
+# 最后构建 Debug APK。合并由 GITHUB_TOKEN 推送，因此不会再触发其它 push 工作流。
+on:
+  schedule:
+    # 每天一次；GitHub 的定时任务在整点容易排队，放在偏移的时刻。
+    - cron: "37 2 * * *"
+  workflow_dispatch:
+    inputs:
+      build_only:
+        description: 跳过同步，只重新构建
+        type: boolean
+        default: false
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: 合并上游
+    if: github.event_name != 'workflow_dispatch' || !inputs.build_only
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      updated: ${{ steps.merge.outputs.updated }}
+      conflict: ${{ steps.merge.outputs.conflict }}
+
+    steps:
+      - name: 检出本仓库
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: 拉取上游 main
+        env:
+          UPSTREAM_REPO: ${{ vars.ETA_UPSTREAM_REPO || 'Mangi-11/Eta' }}
+        run: |
+          set -euo pipefail
+          git config user.name "eta-fork-sync"
+          git config user.email "eta-fork-sync@users.noreply.github.com"
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+          git fetch --no-tags --prune upstream main
+
+      - name: 合并上游改动
+        id: merge
+        run: |
+          set -uo pipefail
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "上游没有新提交，跳过合并"
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+            echo "conflict=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git merge --no-edit --no-ff upstream/main; then
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+            echo "conflict=false" >> "$GITHUB_OUTPUT"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          else
+            conflicted="$(git diff --name-only --diff-filter=U | tr '\n' ' ')"
+            git merge --abort || true
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+            echo "conflicted_files=$conflicted" >> "$GITHUB_OUTPUT"
+            echo "::error::上游改动与本仓库的语音/识图定制冲突，需要人工合并：$conflicted"
+            exit 1
+          fi
+
+      - name: 冲突时登记 Issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONFLICTED: ${{ steps.merge.outputs.conflicted_files }}
+        run: |
+          set -uo pipefail
+          title="上游同步冲突：需要人工合并"
+          # Issues 被关闭时也必须让冲突可见，因此先写运行摘要，再尝试建 Issue。
+          {
+            echo "## 上游同步冲突"
+            echo ""
+            echo "本次没有改写 main。冲突文件：\`${CONFLICTED:-未知}\`"
+            echo ""
+            echo "处理方式：\`git fetch upstream main && git merge upstream/main\`，解决后推送 main。"
+          } >> "$GITHUB_STEP_SUMMARY"
+          body=$(cat <<'EOF'
+          自动同步上游 Eta 时发生冲突，本次没有改写 main。
+
+          请在本机执行：
+
+          ```bash
+          git fetch upstream main
+          git merge upstream/main
+          # 解决冲突后
+          git push origin main
+          ```
+
+          冲突通常出现在这些被本仓库定制过的文件：`SpeechSettings.kt`、`SpeechProtocol.kt`、
+          `SpeechSynthesis.kt`、`StreamingSpeechSynthesis.kt`、`SpeechConnectionFields.kt`、
+          `AgentImageTools.kt`、`SettingsDataStore.kt`、`strings.xml`。
+          解决后请确认 `scripts/verify-fork-features.sh` 通过。
+          EOF
+          )
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[0].number // empty' 2>/dev/null || true)
+          if [[ -n "${existing:-}" ]]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "再次发生冲突，请重新合并上游。" \
+              || echo "::warning::Issue 评论失败，冲突详情见本次运行摘要"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body" \
+              || echo "::warning::仓库未启用 Issues，冲突详情见本次运行摘要"
+          fi
+
+  verify:
+    name: 校验定制功能与单元测试
+    needs: [sync]
+    if: always() && (needs.sync.result == 'success' || needs.sync.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: 配置构建环境
+        uses: ./.github/actions/setup-build
+
+      - name: 校验定制功能仍在
+        run: bash scripts/verify-fork-features.sh
+
+
+      - name: Lint、单元测试与 Debug 构建
+        env:
+          HEAD_SHA: ${{ github.sha }}
+        run: >-
+          ./gradlew --no-daemon --no-configuration-cache --continue
+          "-Peta.buildMetadata=${HEAD_SHA::7}"
+          :app:lintDebug :app:testDebugUnitTest :app:assembleDebug
+
+      - name: 上传 Debug APK
+        if: success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: eta-fork-debug
+          path: app/build/outputs/apk/debug/Eta-v*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: 上传失败报告
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: eta-fork-reports
+          path: |
+            app/build/reports/
+            app/build/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
