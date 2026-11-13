@@ -155,6 +155,51 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      # 发布页需要一个固定下载地址：每次构建覆盖同一个 Release 资产。
+      - name: 恢复固定签名证书
+        if: success()
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/eta-fork.jks
+          key: eta-fork-signing-v1
+
+      - name: 用固定证书签名 APK
+        if: success()
+        env:
+          KEYSTORE: ${{ runner.temp }}/eta-fork.jks
+        run: |
+          set -euo pipefail
+          if [ ! -f "$KEYSTORE" ]; then
+            # 证书缓存一次后长期复用，保证每次发布的 APK 签名一致，能直接覆盖安装。
+            keytool -genkeypair -keystore "$KEYSTORE" -alias eta-fork \
+              -storepass etafork-latest -keypass etafork-latest \
+              -keyalg RSA -keysize 2048 -validity 10950 \
+              -dname "CN=Eta Fork, O=Eta, C=CN"
+          fi
+          mkdir -p dist
+          source_apk="$(ls app/build/outputs/apk/debug/Eta-v*.apk | head -n 1)"
+          apksigner_path="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          "$apksigner_path" sign --ks "$KEYSTORE" --ks-pass pass:etafork-latest \
+            --key-pass pass:etafork-latest --out dist/eta-fork-latest.apk "$source_apk"
+          "$apksigner_path" verify dist/eta-fork-latest.apk
+          ls -lh dist/eta-fork-latest.apk
+
+      - name: 发布到 Releases（固定资产名）
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          tag="fork-latest"
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" \
+              --title "Eta fork 最新构建" \
+              --notes "上游同步后自动构建，含系统内置语音输入/输出选项。资产名固定，可直接覆盖安装。" \
+              "dist/eta-fork-latest.apk" || true
+          fi
+          gh release upload "$tag" "dist/eta-fork-latest.apk" --repo "$GITHUB_REPOSITORY" --clobber
+
       - name: 上传失败报告
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
