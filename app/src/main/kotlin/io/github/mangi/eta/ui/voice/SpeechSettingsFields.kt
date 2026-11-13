@@ -62,6 +62,7 @@ internal fun AsrProvider.label(): String = stringResource(
         AsrProvider.DOUBAO -> R.string.speech_asr_doubao
         AsrProvider.MIMO -> R.string.speech_asr_mimo
         AsrProvider.DEEPSEEK -> R.string.speech_asr_deepseek
+        AsrProvider.SYSTEM -> R.string.speech_asr_system
     },
 )
 
@@ -75,6 +76,9 @@ internal fun TtsProvider.label(): String = stringResource(
         TtsProvider.MINIMAX -> R.string.speech_tts_minimax
         TtsProvider.MIMO -> R.string.speech_tts_mimo
         TtsProvider.DEEPSEEK -> R.string.speech_tts_deepseek
+        TtsProvider.SYSTEM -> R.string.speech_tts_system
+        TtsProvider.SYSTEM_SPEAK -> R.string.speech_tts_system_speak
+        TtsProvider.CLONE -> R.string.speech_tts_clone
     },
 )
 
@@ -214,6 +218,53 @@ internal fun SpeechField(
                 } else {
                     null
                 },
+            )
+        }
+    }
+}
+
+/** 供没有 SpeechSettingsStore 的配置页复用同一套保存按钮与提示。 */
+@Composable
+internal fun SpeechSaveBlock(
+    loaded: Boolean,
+    saving: Boolean,
+    message: String?,
+    messageIsError: Boolean,
+    onClick: () -> Unit,
+) {
+    val uiStyle = LocalUiStyle.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = if (uiStyle == AppearanceUiStyle.COUI) CouiPageDefaults.horizontalMargin else 12.dp)
+            .padding(top = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val text = stringResource(if (saving) R.string.speech_saving else R.string.speech_save)
+        if (uiStyle == AppearanceUiStyle.COUI) {
+            CouiButton(
+                text = text,
+                enabled = loaded && !saving,
+                role = CouiButtonRole.Primary,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onClick,
+            )
+        } else {
+            TextButton(
+                text = text,
+                enabled = loaded && !saving,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.textButtonColorsPrimary(),
+                onClick = onClick,
+            )
+        }
+        message?.let { value ->
+            Text(
+                text = value,
+                style = MiuixTheme.textStyles.footnote2,
+                color = if (messageIsError) StatusError else StatusSuccess,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 8.dp),
             )
         }
     }

@@ -1518,4 +1518,23 @@
   <string name="assistant_overlay_settings_follow_primary_hint">Uses the default main conversation model</string>
   <string name="assistant_overlay_settings_reasoning_follow_default">Follow default</string>
   <string name="assistant_overlay_settings_note">Independently configure the model and reasoning level for the floating assistant triggered by the power key or system assistant. For quick everyday tasks, choosing a fast lightweight model with lower or disabled reasoning helps reduce latency and token usage.</string>
+<!-- System voice engines -->
+  <string name="speech_asr_system">System engine (installed)</string>
+  <string name="speech_asr_note_system">Uses the speech recognition service installed on this device, for example Marmalade STT. Eta does not record audio itself.</string>
+  <string name="speech_tts_system">System engine (file output)</string>
+  <string name="speech_tts_system_note">Synthesises through the installed system TTS engine to a file, then plays it with the Eta player so queueing, fading and background read-aloud keep working.</string>
+  <string name="speech_tts_system_speak">System engine (direct output)</string>
+  <string name="speech_tts_system_speak_note">Hands the text straight to the installed TTS engine so it plays itself. Lowest latency and best compatibility, but Eta can only stop the whole utterance.</string>
+  <string name="speech_tts_clone">CloneTTS HTTP</string>
+  <string name="speech_tts_clone_note">Calls the CloneTTS local HTTP API (GET /api/tts). Enable "Local HTTP API service" in CloneTTS first; WAV and MP3 answers are both supported.</string>
+  <string name="speech_clone_voice">Voice alias (optional)</string>
+<!-- Local image recognition -->
+  <string name="vision_title">Image recognition (local)</string>
+  <string name="vision_group_service">Local vision service</string>
+  <string name="vision_enabled">Use a local vision model</string>
+  <string name="vision_enabled_summary">read_image sends pictures only to the service below and gives the chat model text instead of the image</string>
+  <string name="vision_base_url">Service address</string>
+  <string name="vision_path">Service path</string>
+  <string name="vision_model">Model</string>
+  <string name="vision_note">Only localhost and LAN addresses are accepted. The question comes from the tool call of the model, so there is no global prompt to fight with the current conversation. If the service fails, the picture is not forwarded to the chat model.</string>
 </resources>

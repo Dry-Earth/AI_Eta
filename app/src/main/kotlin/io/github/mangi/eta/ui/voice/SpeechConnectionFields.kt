@@ -20,6 +20,7 @@ import com.itos.coui.layout.Divider
 import io.github.mangi.eta.R
 import io.github.mangi.eta.data.model.AppearanceUiStyle
 import io.github.mangi.eta.data.model.AsrProvider
+import io.github.mangi.eta.data.model.CloneTtsConfig
 import io.github.mangi.eta.data.model.DoubaoSpeechConfig
 import io.github.mangi.eta.data.model.QwenSpeechConfig
 import io.github.mangi.eta.data.model.SpeechCredentialField
@@ -41,6 +42,7 @@ internal fun SpeechConnectionSection(store: SpeechSettingsStore, synthesis: Bool
     if (!synthesis) {
         when (store.settings.asr) {
             AsrProvider.MIMO -> MimoAsrConnectionSection(store)
+            AsrProvider.SYSTEM -> SpeechNote(stringResource(R.string.speech_asr_note_system))
             AsrProvider.DEEPSEEK -> DeepSeekAsrConnectionSection(store)
             AsrProvider.QWEN_REALTIME, AsrProvider.QWEN_FLASH, AsrProvider.QWEN_FILE, AsrProvider.DOUBAO ->
                 QwenDoubaoConnectionSection(store, synthesis = false)
@@ -53,6 +55,9 @@ internal fun SpeechConnectionSection(store: SpeechSettingsStore, synthesis: Bool
         TtsProvider.GEMINI -> GeminiConnectionSection(store)
         TtsProvider.MINIMAX -> MiniMaxConnectionSection(store)
         TtsProvider.MIMO -> MimoTtsConnectionSection(store)
+        TtsProvider.SYSTEM -> SpeechNote(stringResource(R.string.speech_tts_system_note))
+        TtsProvider.SYSTEM_SPEAK -> SpeechNote(stringResource(R.string.speech_tts_system_speak_note))
+        TtsProvider.CLONE -> CloneTtsConnectionSection(store)
         TtsProvider.DEEPSEEK -> DeepSeekTtsConnectionSection(store)
     }
 }
@@ -273,5 +278,27 @@ private fun QwenDoubaoConnectionSection(store: SpeechSettingsStore, synthesis: B
                 ),
             )
         }
+    }
+}
+/** CloneTTS 本地 HTTP 接口：地址与可选音色别名。 */
+@Composable
+private fun CloneTtsConnectionSection(store: SpeechSettingsStore) {
+    val config = store.settings.cloneTts
+    Column {
+        SpeechGroupCard(title = stringResource(R.string.speech_group_connection)) {
+            SpeechFieldColumn {
+                SpeechField(
+                    label = stringResource(R.string.speech_base_url),
+                    value = config.baseUrl,
+                    onChange = { store.edit(store.settings.copy(cloneTts = config.copy(baseUrl = it.trim()))) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.speech_clone_voice),
+                    value = config.voice,
+                    onChange = { store.edit(store.settings.copy(cloneTts = config.copy(voice = it.trim()))) },
+                )
+            }
+        }
+        SpeechNote(stringResource(R.string.speech_tts_clone_note))
     }
 }

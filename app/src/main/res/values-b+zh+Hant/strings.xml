@@ -1395,4 +1395,23 @@
   <string name="assistant_overlay_settings_follow_primary_hint">預設繼承主對話目前使用的模型</string>
   <string name="assistant_overlay_settings_reasoning_follow_default">跟隨預設</string>
   <string name="assistant_overlay_settings_note">單獨設定電源鍵或系統助手喚起的全域對話浮窗所使用的模型與思考等級；日常輕量指令可選用回應更快的輕量模型並降低或關閉思考，主對話仍保留主力模型。</string>
+<!-- 系統內建語音引擎 -->
+  <string name="speech_asr_system">系統內建（已裝引擎）</string>
+  <string name="speech_asr_note_system">呼叫本機已安裝的語音辨識服務，例如 Marmalade STT。Eta 不自行錄音。</string>
+  <string name="speech_tts_system">系統內建（合成到檔案）</string>
+  <string name="speech_tts_system_note">用已安裝的系統合成引擎合成到檔案，再由 Eta 播放，因此分段、淡入淡出與背景朗讀都照舊可用。</string>
+  <string name="speech_tts_system_speak">系統內建（直出）</string>
+  <string name="speech_tts_system_speak_note">把文字直接交給系統合成引擎自行播放。延遲最低、相容性最好，但 Eta 只能整體停止，無法分段控制。</string>
+  <string name="speech_tts_clone">CloneTTS HTTP</string>
+  <string name="speech_tts_clone_note">呼叫 CloneTTS 的本地 HTTP 介面（GET /api/tts）。請先在 CloneTTS 裡開啟「本地 HTTP API 服務」；回傳 WAV 或 MP3 都支援。</string>
+  <string name="speech_clone_voice">音色別名（選填）</string>
+<!-- 本機圖片辨識 -->
+  <string name="vision_title">圖片辨識（本機）</string>
+  <string name="vision_group_service">本機辨識服務</string>
+  <string name="vision_enabled">使用本機視覺模型</string>
+  <string name="vision_enabled_summary">read_image 只把圖片送給下方服務，交給對話模型的是文字描述而不是圖片</string>
+  <string name="vision_base_url">服務位址</string>
+  <string name="vision_path">服務路徑</string>
+  <string name="vision_model">模型</string>
+  <string name="vision_note">只接受本機與區域網路位址。提示詞來自模型當次的工具呼叫，不會出現全域提示詞和目前對話衝突的情況。服務失敗時圖片不會轉交給對話模型。</string>
 </resources>

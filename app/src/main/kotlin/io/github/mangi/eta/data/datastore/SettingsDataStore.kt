@@ -19,6 +19,7 @@ import io.github.mangi.eta.data.model.AppearanceTopBarBlurStyle
 import io.github.mangi.eta.data.model.AppearanceUiStyle
 import io.github.mangi.eta.data.model.AssistantOverlaySettings
 import io.github.mangi.eta.data.model.ConversationTitleSettings
+import io.github.mangi.eta.data.model.ImageRecognitionSettings
 import io.github.mangi.eta.data.model.SpeechSettings
 import io.github.mangi.eta.data.model.SubagentSettings
 import io.github.mangi.eta.data.model.WebToolsSettings
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.map
 
 internal object SettingsDataStore {
     private val SPEECH_SETTINGS = stringPreferencesKey("speech_settings_v1")
+    private val IMAGE_RECOGNITION_SETTINGS = stringPreferencesKey("image_recognition_v1")
     private val WEB_TOOLS_SETTINGS = stringPreferencesKey("web_tools_settings_v1")
     private val SUBAGENT_SETTINGS = stringPreferencesKey("subagent_settings_v1")
     private val CONVERSATION_TITLE_SETTINGS = stringPreferencesKey("conversation_title_settings_v1")
@@ -55,6 +57,26 @@ internal object SettingsDataStore {
     suspend fun setSpeechSettings(settings: SpeechSettings) {
         ensureInitialized()
         dataStore.edit { it[SPEECH_SETTINGS] = speechJson.encodeToString(settings) }
+    }
+
+    fun imageRecognitionFlow(): Flow<ImageRecognitionSettings> {
+        ensureInitialized()
+        return dataStore.data
+            .catch { cause ->
+                if (cause is IOException) emit(emptyPreferences()) else throw cause
+            }
+            .map { prefs ->
+                prefs[IMAGE_RECOGNITION_SETTINGS]?.let { raw ->
+                    runCatching { speechJson.decodeFromString<ImageRecognitionSettings>(raw) }.getOrNull()
+                } ?: ImageRecognitionSettings()
+            }
+    }
+
+    suspend fun imageRecognition(): ImageRecognitionSettings = imageRecognitionFlow().first()
+
+    suspend fun setImageRecognition(settings: ImageRecognitionSettings) {
+        ensureInitialized()
+        dataStore.edit { it[IMAGE_RECOGNITION_SETTINGS] = speechJson.encodeToString(settings) }
     }
 
     fun webToolsSettingsFlow(): Flow<WebToolsSettings> {

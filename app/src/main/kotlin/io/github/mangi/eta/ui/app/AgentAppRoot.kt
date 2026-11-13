@@ -104,6 +104,7 @@ import io.github.mangi.eta.ui.voice.SpeechOssScreen
 import io.github.mangi.eta.ui.voice.SpeechRecognitionScreen
 import io.github.mangi.eta.ui.voice.SpeechSettingsScreen
 import io.github.mangi.eta.ui.voice.SpeechSynthesisScreen
+import io.github.mangi.eta.ui.vision.ImageRecognitionScreen
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -744,6 +745,9 @@ fun AgentAppRoot(
             }
             entry<AppRoute.SpeechOss>(swipeDismiss = swipeDismiss) {
                 SpeechOssScreen(onBack = ::popRoute)
+            }
+            entry<AppRoute.ImageRecognition>(swipeDismiss = swipeDismiss) {
+                ImageRecognitionScreen(onBack = ::popRoute)
             }
             entry<AppRoute.AppearanceSettings>(swipeDismiss = swipeDismiss) {
                 AppearanceSettingsScreen(onBack = ::popRoute)

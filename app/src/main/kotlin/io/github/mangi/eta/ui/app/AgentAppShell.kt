@@ -712,6 +712,7 @@ private fun titleForRoute(route: AppRoute?): String = when (route) {
     is AppRoute.SpeechRecognition -> stringResource(R.string.speech_recognition_title)
     is AppRoute.SpeechSynthesis -> stringResource(R.string.speech_synthesis_title)
     is AppRoute.SpeechOss -> stringResource(R.string.speech_oss_title)
+    is AppRoute.ImageRecognition -> stringResource(R.string.vision_title)
     is AppRoute.AppearanceSettings -> stringResource(R.string.appearance_title)
     is AppRoute.DataBackup -> stringResource(R.string.data_backup_title)
     is AppRoute.Memory -> stringResource(R.string.route_memory)

@@ -7,7 +7,12 @@ import io.github.mangi.eta.agent.device.BoundedFileCopy
 import io.github.mangi.eta.agent.device.RootAccess
 import io.github.mangi.eta.agent.media.AgentImageCodec
 import io.github.mangi.eta.agent.media.MAX_AGENT_IMAGE_BYTES
+import io.github.mangi.eta.agent.media.hasSupportedImageMagic
 import io.github.mangi.eta.agent.model.AgentModelClient
+import io.github.mangi.eta.agent.vision.LocalVisionClient
+import io.github.mangi.eta.agent.vision.VisionFailure
+import io.github.mangi.eta.data.repository.ImageRecognitionRepository
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.IOException
 import java.io.InterruptedIOException
@@ -44,6 +49,7 @@ internal class AgentImageTools(
                 )
                 if (!copyResult.ok) return sensitive(copyFailure(copyResult))
             }
+            describeLocally(source, temporaryFile, args.optString("question"))?.let { return it }
             val image = AgentImageCodec.fromToolFile(
                 file = temporaryFile,
                 source = "tool_read_image",
@@ -62,6 +68,54 @@ internal class AgentImageTools(
         } finally {
             temporaryFile.delete()
         }
+    }
+
+    /**
+     * 启用本地识图后，图片只发给配置的本机/局域网服务，模型只拿到文字描述。
+     * 配置读不出、服务连不上都直接返回错误，绝不把图片交给对话模型。
+     */
+    private fun describeLocally(source: String, file: File, question: String): AgentModelClient.ToolResult? {
+        val settings = try {
+            runBlocking { ImageRecognitionRepository.settings() }
+        } catch (_: Exception) {
+            return sensitive(error("VISION_CONFIG_UNAVAILABLE", "无法读取本地图片识别配置，本次识图已取消"))
+        }
+        if (!settings.enabled) return null
+        if (settings.model.isBlank()) {
+            return sensitive(error("VISION_NOT_CONFIGURED", "请在图片识别设置中填写本地识图模型"))
+        }
+        val bytes = runCatching { file.readBytes() }.getOrElse {
+            return sensitive(error("IMAGE_UNAVAILABLE", "图片读取失败"))
+        }
+        if (!bytes.hasSupportedImageMagic()) {
+            return sensitive(error("IMAGE_UNSUPPORTED", "文件不是可识别的图片"))
+        }
+        val description = try {
+            runBlocking { LocalVisionClient.describe(settings, question, bytes, mimeType(bytes)) }
+        } catch (failure: VisionFailure) {
+            return sensitive(error("VISION_FAILED", failure.message ?: "本地识图失败"))
+        } catch (failure: Exception) {
+            return sensitive(error("VISION_UNAVAILABLE", "无法连接本地识图服务：${failure.message ?: "未知错误"}"))
+        }
+        return sensitive(
+            JSONObject()
+                .put("ok", true)
+                .put("tool", "read_image")
+                .put("path", source)
+                .put("image_attached", false)
+                .put("local_vision", true)
+                .put("vision_model", settings.model.trim())
+                .put("description", description)
+                .toString(),
+        )
+    }
+
+    private fun mimeType(bytes: ByteArray): String = when {
+        bytes.size >= 3 && bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte() -> "image/jpeg"
+        bytes.size >= 8 && bytes[0] == 0x89.toByte() && bytes[1] == 0x50.toByte() -> "image/png"
+        bytes.size >= 6 && bytes[0] == 'G'.code.toByte() -> "image/gif"
+        bytes.size >= 12 && String(bytes, 8, 4, Charsets.US_ASCII) == "WEBP" -> "image/webp"
+        else -> "image/jpeg"
     }
 
     private fun copyAsApp(source: String, sourceKind: ImageSourceKind, destination: File): Boolean = try {

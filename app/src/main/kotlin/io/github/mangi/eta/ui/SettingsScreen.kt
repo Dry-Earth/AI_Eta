@@ -667,6 +667,11 @@ private fun SettingsPageContent(
                         onClick = { onNavigate(AppRoute.SpeechSettings) },
                     )
                     CouiIconDivider()
+                    CouiPreference(
+                        title = stringResource(R.string.vision_title),
+                        onClick = { onNavigate(AppRoute.ImageRecognition) },
+                    )
+                    CouiIconDivider()
                     LanguagePreference(
                         iconTint = SettingsIconColors.Blue,
                         startAction = {
@@ -1118,6 +1123,10 @@ private fun SettingsPageContent(
                             title = stringResource(R.string.speech_settings_title),
                             startAction = { SettingsIcon(icon = Icons.Rounded.Mic, tint = SettingsIconColors.Blue) },
                             onClick = { onNavigate(AppRoute.SpeechSettings) },
+                        )
+                        ArrowPreference(
+                            title = stringResource(R.string.vision_title),
+                            onClick = { onNavigate(AppRoute.ImageRecognition) },
                         )
                         LanguagePreference(
                             iconTint = SettingsIconColors.Blue,

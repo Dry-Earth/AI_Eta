@@ -4,6 +4,7 @@ import android.content.Context
 import io.github.mangi.eta.core.AndroidAgentLogger
 import io.github.mangi.eta.data.model.SpeechCredentials
 import io.github.mangi.eta.data.model.SpeechSettings
+import io.github.mangi.eta.data.model.TtsProvider
 import io.github.mangi.eta.data.repository.SpeechSettingsRepository
 import java.io.Closeable
 import kotlinx.coroutines.CancellationException
@@ -29,7 +30,7 @@ internal class SpeechPlaybackController(
     private val beforePlayback: () -> Unit = {},
     private val interruptOnScreenOff: Boolean = true,
     private val afterPlayback: () -> Unit = {},
-    private val synthesize: suspend (SpeechSettings, SpeechCredentials, String, (ByteArray) -> Unit) -> Unit = ::synthesizeSpeech,
+    private val synthesize: suspend (SpeechSettings, SpeechCredentials, String, (ByteArray) -> Unit) -> Unit = { settings, credentials, text, onAudio -> synthesizeSpeech(context, settings, credentials, text, onAudio) },
     /** 整篇单会话流式合成；为 null 时只用逐段请求。 */
     private val streamSynthesize: (suspend (SpeechSettings, SpeechCredentials, List<String>, (ByteArray) -> Unit) -> Unit)? = ::streamSpeech,
     private val createOutput: () -> SpeechAudioOutput = ::SpeechPcmOutput,
@@ -56,6 +57,13 @@ internal class SpeechPlaybackController(
                 val readable = withContext(Dispatchers.Default) { SpeechText.readable(text) }
                 if (readable.isBlank()) throw SpeechFailure(SpeechErrorCode.NO_SPEECH, "这条消息没有可朗读的正文")
                 if (readable.length > 30_000) throw SpeechFailure(SpeechErrorCode.CONFIGURATION, "正文过长，请选择较短的回答朗读")
+                // 系统直出：引擎自己播放，Eta 只负责音频焦点、状态与停止。
+                if (config.tts == TtsProvider.SYSTEM_SPEAK) {
+                    lease?.requestPlaybackFocus { beforePlayback(); playbackActive = true }
+                    speakWithSystemEngine(context, readable)
+                    if (session == generation) stop()
+                    return@launch
+                }
                 lease?.requestPlaybackFocus { beforePlayback(); playbackActive = true }
                 val player = createOutput()
                 output = player
@@ -152,6 +160,7 @@ internal class SpeechPlaybackController(
 
     fun stop() {
         generation++
+        stopSystemSpeech()
         output?.close(); output = null
         job?.cancel(); job = null
         lease?.close(); lease = null

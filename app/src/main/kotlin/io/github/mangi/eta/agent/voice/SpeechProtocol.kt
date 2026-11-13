@@ -77,8 +77,13 @@ internal fun validateSpeechSettings(
                 required(settings.deepseekTts.voice, "音色")
                 speechBaseUrl(settings.deepseekTts.baseUrl)
             }
+            // 系统内置引擎与 CloneTTS 都不需要地址/凭据以外的配置。
+            TtsProvider.SYSTEM -> Unit
+            TtsProvider.SYSTEM_SPEAK -> Unit
+            TtsProvider.CLONE -> required(settings.cloneTts.baseUrl, "CloneTTS 服务地址")
         }
     } else when (settings.asr) {
+        AsrProvider.SYSTEM -> Unit
         AsrProvider.MIMO -> {
             required(secrets.mimoAsr, "MiMo 识别 API Key")
             speechBaseUrl(settings.mimoAsr.baseUrl)
