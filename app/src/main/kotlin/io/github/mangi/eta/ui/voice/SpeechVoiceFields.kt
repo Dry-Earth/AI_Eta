@@ -21,6 +21,7 @@ internal fun SpeechVoiceSection(store: SpeechSettingsStore) {
     val settings = store.settings
     val voice = when (settings.tts) {
         TtsProvider.NONE -> return
+        TtsProvider.SYSTEM, TtsProvider.SYSTEM_SPEAK, TtsProvider.CLONE -> return
         TtsProvider.QWEN -> settings.qwenVoice
         TtsProvider.DOUBAO -> settings.doubaoVoice
         TtsProvider.GEMINI -> settings.geminiTts.voice
@@ -36,6 +37,7 @@ internal fun SpeechVoiceSection(store: SpeechSettingsStore) {
         store.edit(
             when (settings.tts) {
                 TtsProvider.NONE -> settings
+                TtsProvider.SYSTEM, TtsProvider.SYSTEM_SPEAK, TtsProvider.CLONE -> settings
                 TtsProvider.QWEN -> settings.copy(qwenVoice = it)
                 TtsProvider.DOUBAO -> settings.copy(doubaoVoice = it)
                 TtsProvider.GEMINI -> settings.copy(geminiTts = settings.geminiTts.copy(voice = it))
@@ -106,6 +108,9 @@ internal fun SpeechVoiceSection(store: SpeechSettingsStore) {
                     TtsProvider.MIMO -> R.string.speech_mimo_voice_note
                     TtsProvider.DEEPSEEK -> R.string.speech_deepseek_voice_note
                     TtsProvider.NONE -> error("No synthesis provider")
+                    TtsProvider.SYSTEM -> R.string.speech_tts_system_note
+                    TtsProvider.SYSTEM_SPEAK -> R.string.speech_tts_system_speak_note
+                    TtsProvider.CLONE -> R.string.speech_tts_clone_note
                 },
             ),
         )

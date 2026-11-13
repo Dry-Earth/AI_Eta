@@ -16,6 +16,9 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.withTimeout
 
 internal data class SpeechInputState(
@@ -61,6 +64,7 @@ internal class SpeechInputController(
     private var finishRequested = false
     private var job: Job? = null
     private var recorder: SpeechAudioCapture? = null
+    private var systemSession: SystemRecognitionSession? = null
     private var lease: SpeechAudioLease? = null
     private var capturing = false
 
@@ -81,14 +85,16 @@ internal class SpeechInputController(
                 val (config, secrets) = SpeechSettingsRepository.resolveDeepSeekFallback(rawConfig, rawSecrets)
                 validateSpeechSettings(config, secrets, synthesis = false)
                 val endpointSilenceMs = if (automaticEndpoint && !holdToTalk) config.autoSendSilenceMs else 0
-                val audio = createRecorder()
-                recorder = audio
+                // 系统识别引擎自己打开麦克风，这条路径不创建录音器。
+                val audio = if (config.asr == AsrProvider.SYSTEM) null else createRecorder().also { recorder = it }
                 fun update(transform: (SpeechInputState) -> SpeechInputState) {
                     scope.launch(Dispatchers.Main.immediate) {
                         if (generation == session) mutableState.value = transform(mutableState.value)
                     }
                 }
-                val text = coroutineScope {
+                val text = if (audio == null) {
+                    recognizeWithSystemEngine(config, ::update)
+                } else coroutineScope {
                     var recording: Job? = null
                     val begin = {
                         if (recording == null) {
@@ -179,6 +185,7 @@ internal class SpeechInputController(
         if (!mutableState.value.active || finishRequested) return
         finishRequested = true
         if (mutableState.value.phase == EtaSpeechPhase.STARTING) { cancel(); return }
+        systemSession?.finish()
         recorder?.finish()
         mutableState.value = mutableState.value.copy(phase = EtaSpeechPhase.RECOGNIZING, progress = "正在识别", level = 0f)
     }
@@ -188,6 +195,7 @@ internal class SpeechInputController(
         finishRequested = false
         // 先取消识别协程，避免关闭录音通道被当作正常录音完成而提交请求。
         job?.cancel(); job = null
+        systemSession?.cancel(); systemSession = null
         recorder?.cancel(); recorder = null
         releaseCapture()
         lease?.close(); lease = null
@@ -197,5 +205,28 @@ internal class SpeechInputController(
     private fun releaseCapture() {
         if (capturing) afterCapture()
         capturing = false
+    }
+
+    /**
+     * 系统内置识别：不自己录音，交给系统识别服务（LineageOS 上通常是用户安装的离线引擎）。
+     */
+    private suspend fun recognizeWithSystemEngine(
+        config: SpeechSettings,
+        update: ((SpeechInputState) -> SpeechInputState) -> Unit,
+    ): String = suspendCancellableCoroutine { continuation ->
+        val engine = SystemRecognitionSession(
+            context = context,
+            onReady = {
+                beforeCapture()
+                capturing = true
+                update { it.copy(phase = EtaSpeechPhase.LISTENING, progress = "正在聆听，点击完成结束") }
+            },
+            onPreview = { preview -> update { it.copy(preview = preview) } },
+            onResult = { text -> if (continuation.isActive) continuation.resume(text) },
+            onFailure = { error -> if (continuation.isActive) continuation.resumeWithException(error) },
+        )
+        systemSession = engine
+        continuation.invokeOnCancellation { engine.cancel() }
+        engine.start(config.language)
     }
 }

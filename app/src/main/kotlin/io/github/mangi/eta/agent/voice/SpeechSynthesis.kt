@@ -1,5 +1,6 @@
 package io.github.mangi.eta.agent.voice
 
+import android.content.Context
 import io.github.mangi.eta.data.model.SpeechCredentials
 import io.github.mangi.eta.data.model.SpeechSettings
 import io.github.mangi.eta.data.model.TtsProvider
@@ -10,13 +11,16 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
-internal suspend fun synthesizeSpeech(settings: SpeechSettings, credentials: SpeechCredentials,
+internal suspend fun synthesizeSpeech(context: Context, settings: SpeechSettings, credentials: SpeechCredentials,
     text: String, onAudio: (ByteArray) -> Unit) = withTimeout(90_000) {
     when (settings.tts) {
         TtsProvider.GEMINI -> return@withTimeout synthesizeGemini(settings.geminiTts, credentials.geminiTts, text, onAudio)
         TtsProvider.MINIMAX -> return@withTimeout synthesizeMiniMax(settings.minimaxTts, credentials.minimaxTts, text, onAudio)
         TtsProvider.MIMO -> return@withTimeout synthesizeMimo(settings.mimoTts, credentials.mimoTts, text, onAudio)
         TtsProvider.DEEPSEEK -> return@withTimeout synthesizeDeepSeek(settings.deepseekTts, credentials.deepseekTts, text, onAudio)
+        TtsProvider.SYSTEM -> return@withTimeout synthesizeSystemSpeech(context, text, onAudio)
+        TtsProvider.CLONE -> return@withTimeout synthesizeCloneTts(context, settings.cloneTts, text, onAudio)
+        TtsProvider.SYSTEM_SPEAK -> throw SpeechFailure(SpeechErrorCode.CONFIGURATION, "系统直出由播放控制器处理")
         TtsProvider.NONE -> throw SpeechFailure(SpeechErrorCode.CONFIGURATION, "请先选择语音播报服务")
         TtsProvider.QWEN, TtsProvider.DOUBAO -> Unit
     }

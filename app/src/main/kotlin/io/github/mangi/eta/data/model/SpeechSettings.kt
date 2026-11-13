@@ -6,10 +6,10 @@ private const val MIMO_SPEECH_BASE_URL = "https://api.xiaomimimo.com/v1"
 private const val DEEPSEEK_SPEECH_BASE_URL = "https://api.deepseek.com"
 
 @Serializable
-enum class AsrProvider { QWEN_REALTIME, QWEN_FLASH, QWEN_FILE, DOUBAO, MIMO, DEEPSEEK }
+enum class AsrProvider { QWEN_REALTIME, QWEN_FLASH, QWEN_FILE, DOUBAO, MIMO, DEEPSEEK, SYSTEM }
 
 @Serializable
-enum class TtsProvider { NONE, QWEN, DOUBAO, GEMINI, MINIMAX, MIMO, DEEPSEEK }
+enum class TtsProvider { NONE, QWEN, DOUBAO, GEMINI, MINIMAX, MIMO, DEEPSEEK, SYSTEM, SYSTEM_SPEAK, CLONE }
 
 @Serializable
 enum class SpeechRegion { BEIJING, SINGAPORE }
@@ -93,6 +93,13 @@ data class DeepSeekTtsConfig(
     val filterMarkdown: Boolean = true,
 )
 
+/** CloneTTS 内置 HTTP API：本地合成，可选音色别名。 */
+@Serializable
+data class CloneTtsConfig(
+    val baseUrl: String = "http://127.0.0.1:8080",
+    val voice: String = "",
+)
+
 @Serializable
 data class SpeechOssConfig(
     val region: String = "cn-beijing",
@@ -124,6 +131,7 @@ data class SpeechSettings(
     val refineTranscript: Boolean = false,
     /** 只控制 Eta 自身的语音输入，关闭时保留服务配置以便再次开启。 */
     val recognitionEnabled: Boolean = true,
+    val cloneTts: CloneTtsConfig = CloneTtsConfig(),
     val mimoAsr: MimoAsrConfig = MimoAsrConfig(),
     val mimoTts: MimoTtsConfig = MimoTtsConfig(),
     val deepseekAsr: DeepSeekAsrConfig = DeepSeekAsrConfig(),

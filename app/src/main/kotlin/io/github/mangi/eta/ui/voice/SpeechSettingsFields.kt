@@ -62,6 +62,7 @@ internal fun AsrProvider.label(): String = stringResource(
         AsrProvider.DOUBAO -> R.string.speech_asr_doubao
         AsrProvider.MIMO -> R.string.speech_asr_mimo
         AsrProvider.DEEPSEEK -> R.string.speech_asr_deepseek
+        AsrProvider.SYSTEM -> R.string.speech_asr_system
     },
 )
 
@@ -75,6 +76,9 @@ internal fun TtsProvider.label(): String = stringResource(
         TtsProvider.MINIMAX -> R.string.speech_tts_minimax
         TtsProvider.MIMO -> R.string.speech_tts_mimo
         TtsProvider.DEEPSEEK -> R.string.speech_tts_deepseek
+        TtsProvider.SYSTEM -> R.string.speech_tts_system
+        TtsProvider.SYSTEM_SPEAK -> R.string.speech_tts_system_speak
+        TtsProvider.CLONE -> R.string.speech_tts_clone
     },
 )
 

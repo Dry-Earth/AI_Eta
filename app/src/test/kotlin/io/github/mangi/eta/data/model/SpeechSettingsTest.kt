@@ -23,7 +23,7 @@ class SpeechSettingsTest {
             validateSpeechSettings(config, SpeechCredentials(), synthesis = false)
         }
         val legacy = json.decodeFromString<SpeechSettings>(
-            """{"asr":"SYSTEM","tts":"DOUBAO","autoSpeak":true,"refineTranscript":true}""",
+            """{"asr":"RETIRED_ENGINE","tts":"DOUBAO","autoSpeak":true,"refineTranscript":true}""",
         )
         assertEquals(AsrProvider.QWEN_REALTIME, legacy.asr)
         assertEquals(TtsProvider.DOUBAO, legacy.tts)
