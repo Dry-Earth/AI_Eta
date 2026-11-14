@@ -17,7 +17,10 @@ import io.github.mangi.eta.ui.app.LocalUiStyle
 import io.github.mangi.eta.ui.components.MiuixScaffoldPage
 import io.github.mangi.eta.ui.components.coui.CouiPageBottomSpacer
 import io.github.mangi.eta.ui.components.coui.CouiScaffoldPage
+import io.github.mangi.eta.data.model.VisionEngine
+import io.github.mangi.eta.ui.components.coui.CouiDropdownPreference
 import io.github.mangi.eta.ui.components.coui.CouiSwitchPreference
+import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import io.github.mangi.eta.ui.voice.SpeechField
 import io.github.mangi.eta.ui.voice.SpeechFieldColumn
 import io.github.mangi.eta.ui.voice.SpeechGroupCard
@@ -115,23 +118,78 @@ internal fun ImageRecognitionScreen(onBack: () -> Unit) {
 @Composable
 private fun VisionServiceFields(store: ImageRecognitionStore) {
     val settings = store.settings
+    val engines = listOf(
+        stringResource(R.string.vision_engine_http),
+        stringResource(R.string.vision_engine_geniex),
+    )
+    val onEngine: (Int) -> Unit = { index ->
+        VisionEngine.entries.getOrNull(index)?.let { store.edit(settings.copy(engine = it)) }
+    }
+    when (LocalUiStyle.current) {
+        AppearanceUiStyle.COUI -> {
+            CouiDropdownPreference(
+                title = stringResource(R.string.vision_engine),
+                items = engines,
+                selectedIndex = settings.engine.ordinal,
+                onSelectedIndexChange = onEngine,
+            )
+            Divider()
+        }
+        AppearanceUiStyle.MIUIX -> {
+            OverlayDropdownPreference(
+                title = stringResource(R.string.vision_engine),
+                items = engines,
+                selectedIndex = settings.engine.ordinal,
+                onSelectedIndexChange = onEngine,
+            )
+        }
+    }
     Column {
         SpeechFieldColumn {
-            SpeechField(
-                label = stringResource(R.string.vision_base_url),
-                value = settings.baseUrl,
-                onChange = { store.edit(settings.copy(baseUrl = it.trim())) },
-            )
-            SpeechField(
-                label = stringResource(R.string.vision_path),
-                value = settings.path,
-                onChange = { store.edit(settings.copy(path = it.trim())) },
-            )
-            SpeechField(
-                label = stringResource(R.string.vision_model),
-                value = settings.model,
-                onChange = { store.edit(settings.copy(model = it.trim())) },
-            )
+            if (settings.engine == VisionEngine.HTTP) {
+                SpeechField(
+                    label = stringResource(R.string.vision_base_url),
+                    value = settings.baseUrl,
+                    onChange = { store.edit(settings.copy(baseUrl = it.trim())) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.vision_path),
+                    value = settings.path,
+                    onChange = { store.edit(settings.copy(path = it.trim())) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.vision_model),
+                    value = settings.model,
+                    onChange = { store.edit(settings.copy(model = it.trim())) },
+                )
+            } else {
+                SpeechField(
+                    label = stringResource(R.string.vision_geniex_model),
+                    value = settings.geniexModel,
+                    onChange = { store.edit(settings.copy(geniexModel = it.trim())) },
+                )
+                SpeechField(
+                    label = stringResource(R.string.vision_geniex_local_path),
+                    value = settings.geniexLocalPath,
+                    onChange = { store.edit(settings.copy(geniexLocalPath = it.trim())) },
+                )
+            }
+        }
+        if (settings.engine == VisionEngine.GENIEX) {
+            when (LocalUiStyle.current) {
+                AppearanceUiStyle.COUI -> CouiSwitchPreference(
+                    title = stringResource(R.string.vision_geniex_on_demand),
+                    summary = stringResource(R.string.vision_geniex_on_demand_summary),
+                    checked = settings.geniexOnDemand,
+                    onCheckedChange = { store.edit(settings.copy(geniexOnDemand = it)) },
+                )
+                AppearanceUiStyle.MIUIX -> SwitchPreference(
+                    title = stringResource(R.string.vision_geniex_on_demand),
+                    summary = stringResource(R.string.vision_geniex_on_demand_summary),
+                    checked = settings.geniexOnDemand,
+                    onCheckedChange = { store.edit(settings.copy(geniexOnDemand = it)) },
+                )
+            }
         }
     }
 }

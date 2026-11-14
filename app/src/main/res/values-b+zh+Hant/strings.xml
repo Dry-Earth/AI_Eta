@@ -1414,4 +1414,12 @@
   <string name="vision_path">服務路徑</string>
   <string name="vision_model">模型</string>
   <string name="vision_note">只接受本機與區域網路位址。提示詞來自模型當次的工具呼叫，不會出現全域提示詞和目前對話衝突的情況。服務失敗時圖片不會轉交給對話模型。</string>
+<!-- 裝置內 GenieX 引擎 -->
+  <string name="vision_engine">引擎</string>
+  <string name="vision_engine_http">本機 HTTP 服務</string>
+  <string name="vision_engine_geniex">裝置內 GenieX</string>
+  <string name="vision_geniex_model">模型名稱（儲存時下載）</string>
+  <string name="vision_geniex_local_path">本機模型路徑（填了就不下載）</string>
+  <string name="vision_geniex_on_demand">按需載入</string>
+  <string name="vision_geniex_on_demand_summary">閒置時卸載模型釋放記憶體，下次使用時重新載入</string>
 </resources>

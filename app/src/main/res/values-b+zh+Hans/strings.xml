@@ -1518,4 +1518,12 @@
   <string name="vision_path">服务路径</string>
   <string name="vision_model">模型</string>
   <string name="vision_note">只接受本机与局域网地址。提示词来自模型当次的工具调用，不会出现全局提示词和当前对话打架的情况。服务失败时图片不会转交给对话模型。</string>
+<!-- 设备内 GenieX 引擎 -->
+  <string name="vision_engine">引擎</string>
+  <string name="vision_engine_http">本地 HTTP 服务</string>
+  <string name="vision_engine_geniex">设备内 GenieX</string>
+  <string name="vision_geniex_model">模型名（保存时下载）</string>
+  <string name="vision_geniex_local_path">本地模型路径（填了就不下载）</string>
+  <string name="vision_geniex_on_demand">按需加载</string>
+  <string name="vision_geniex_on_demand_summary">闲置时卸载模型释放内存，下次使用时重新加载</string>
 </resources>

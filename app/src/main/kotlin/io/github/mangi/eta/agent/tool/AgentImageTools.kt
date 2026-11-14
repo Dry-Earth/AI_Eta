@@ -7,10 +7,17 @@ import io.github.mangi.eta.agent.device.BoundedFileCopy
 import io.github.mangi.eta.agent.device.RootAccess
 import io.github.mangi.eta.agent.media.AgentImageCodec
 import io.github.mangi.eta.agent.media.MAX_AGENT_IMAGE_BYTES
+import io.github.mangi.eta.agent.geniex.GenieXModelCatalog
+import io.github.mangi.eta.agent.geniex.GenieXModelManager
+import io.github.mangi.eta.agent.geniex.GenieXRunConfig
+import io.github.mangi.eta.agent.geniex.GenieXVisionClient
+import io.github.mangi.eta.agent.geniex.GenieXVisionFailure
 import io.github.mangi.eta.agent.media.hasSupportedImageMagic
 import io.github.mangi.eta.agent.model.AgentModelClient
 import io.github.mangi.eta.agent.vision.LocalVisionClient
 import io.github.mangi.eta.agent.vision.VisionFailure
+import io.github.mangi.eta.data.model.ImageRecognitionSettings
+import io.github.mangi.eta.data.model.VisionEngine
 import io.github.mangi.eta.data.repository.ImageRecognitionRepository
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -91,7 +98,11 @@ internal class AgentImageTools(
             return sensitive(error("IMAGE_UNSUPPORTED", "文件不是可识别的图片"))
         }
         val description = try {
-            runBlocking { LocalVisionClient.describe(settings, question, bytes, mimeType(bytes)) }
+            if (settings.engine == VisionEngine.GENIEX) {
+                describeWithGenieX(settings, question, file.absolutePath)
+            } else {
+                runBlocking { LocalVisionClient.describe(settings, question, bytes, mimeType(bytes)) }
+            }
         } catch (failure: VisionFailure) {
             return sensitive(error("VISION_FAILED", failure.message ?: "本地识图失败"))
         } catch (failure: Exception) {
@@ -118,6 +129,41 @@ internal class AgentImageTools(
         else -> "image/jpeg"
     }
 
+    private val geniexClient by lazy { GenieXVisionClient(context) }
+
+    /**
+     * 设备内 GenieX：优先用设置里的本地模型路径，否则按模型名取 SDK 下载好的路径。
+     * 按需模式下用完立即卸载；任何失败都不回退到云端。
+     */
+    private fun describeWithGenieX(
+        settings: ImageRecognitionSettings,
+        question: String,
+        imagePath: String,
+    ): String {
+        val local = settings.geniexLocalPath.trim()
+        val run = if (local.isNotEmpty()) {
+            GenieXRunConfig(modelPath = local, runtimeId = GenieXModelCatalog.inferRuntime(local))
+        } else {
+            val name = settings.geniexModel.trim()
+            if (name.isEmpty()) throw GenieXVisionFailure("请填写模型名，或选择本地模型文件")
+            val paths = runBlocking { GenieXModelManager.paths(name) }
+                ?: throw GenieXVisionFailure("模型尚未下载，请先在设置中保存以下载")
+            GenieXRunConfig(
+                modelPath = paths.model_path,
+                mmprojPath = paths.mmproj_path,
+                runtimeId = paths.runtime_id.ifBlank { GenieXModelCatalog.inferRuntime(name) },
+                contextSize = settings.geniexContextSize,
+            )
+        }
+        return try {
+            runBlocking {
+                geniexClient.describe(run, question, imagePath)
+            }.also { if (settings.geniexOnDemand) geniexClient.close() }
+        } catch (failure: GenieXVisionFailure) {
+            if (settings.geniexOnDemand) geniexClient.close()
+            throw failure
+        }
+    }
     private fun copyAsApp(source: String, sourceKind: ImageSourceKind, destination: File): Boolean = try {
         val input = when (sourceKind) {
             ImageSourceKind.File -> File(source).takeIf { it.isFile && it.canRead() }?.inputStream()

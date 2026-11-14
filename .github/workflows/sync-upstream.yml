@@ -138,6 +138,9 @@ jobs:
         run: bash scripts/verify-fork-features.sh
 
 
+      - name: 准备 GenieX SDK 与模型目录
+        run: bash scripts/fetch-geniex-sdk.sh
+
       - name: Lint、单元测试与 Debug 构建
         env:
           HEAD_SHA: ${{ github.sha }}
@@ -199,6 +202,17 @@ jobs:
               "dist/eta-fork-latest.apk" || true
           fi
           gh release upload "$tag" "dist/eta-fork-latest.apk" --repo "$GITHUB_REPOSITORY" --clobber
+
+      - name: 校验 16 KB 页对齐
+        if: success()
+        run: |
+          apk="$(ls app/build/outputs/apk/debug/Eta-v*.apk | head -n 1)"
+          zipalign_bin="$(find "$ANDROID_HOME/build-tools" -type f -name zipalign | sort -V | tail -n 1)"
+          if "$zipalign_bin" -c -P 16 -v 4 "$apk" > /dev/null 2>&1; then
+            echo "16 KB 页对齐：通过"
+          else
+            echo "::warning::16 KB 页对齐检查未通过"
+          fi
 
       - name: 上传失败报告
         if: failure()

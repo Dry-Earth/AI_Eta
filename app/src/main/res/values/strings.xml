@@ -1537,4 +1537,12 @@
   <string name="vision_path">Service path</string>
   <string name="vision_model">Model</string>
   <string name="vision_note">Only localhost and LAN addresses are accepted. The question comes from the tool call of the model, so there is no global prompt to fight with the current conversation. If the service fails, the picture is not forwarded to the chat model.</string>
+<!-- GenieX on-device engine -->
+  <string name="vision_engine">Engine</string>
+  <string name="vision_engine_http">Local HTTP service</string>
+  <string name="vision_engine_geniex">On-device GenieX</string>
+  <string name="vision_geniex_model">Model name (downloaded on save)</string>
+  <string name="vision_geniex_local_path">Local model path (skips download)</string>
+  <string name="vision_geniex_on_demand">Load on demand</string>
+  <string name="vision_geniex_on_demand_summary">Unload the model when idle to free memory; reload on next use</string>
 </resources>

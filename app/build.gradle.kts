@@ -148,6 +148,8 @@ androidComponents {
 }
 
 dependencies {
+    // 设备内 GenieX SDK：CI 构建前下载到 app/libs；缺失时跳过，保证未下载 AAR 的构建也能通过。
+    implementation(files("libs/geniex-android.aar"))
     coreLibraryDesugaring(libs.desugar.jdk.libs.nio)
     implementation(libs.jsoup)
     implementation(libs.commons.compress)
