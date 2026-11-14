@@ -18,6 +18,8 @@ internal data class GenieXRunConfig(
     val modelPath: String,
     val mmprojPath: String? = null,
     val runtimeId: String = "llama_cpp",
+    /** null 表示自动；npu / gpu / cpu 为用户显式指定。 */
+    val computeUnit: String? = null,
     val contextSize: Int = 4096,
     val maxTokens: Int = 1024,
 )
@@ -87,7 +89,7 @@ internal class GenieXVisionClient(private val context: Context) {
 
     private suspend fun ensureLoaded(run: GenieXRunConfig): VlmWrapper {
         if (run.modelPath.isBlank()) throw GenieXVisionFailure("请先在设置中选择本地模型")
-        val key = "${run.modelPath}|${run.mmprojPath}|${run.runtimeId}|${run.contextSize}"
+        val key = "${run.modelPath}|${run.mmprojPath}|${run.runtimeId}|${run.contextSize}|${run.computeUnit}"
         wrapper?.takeIf { loadedKey == key }?.let { return it }
         close()
         GenieXModelManager.ensureInitialized(context)
@@ -99,7 +101,7 @@ internal class GenieXVisionClient(private val context: Context) {
                         mmproj_path = run.mmprojPath,
                         config = ModelConfig(nCtx = run.contextSize),
                         runtime_id = run.runtimeId,
-                        compute_unit = null,
+                        compute_unit = run.computeUnit,
                     ),
                 )
                 .build()

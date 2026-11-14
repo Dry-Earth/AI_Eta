@@ -1526,4 +1526,6 @@
   <string name="vision_geniex_local_path">本地模型路径（填了就不下载）</string>
   <string name="vision_geniex_on_demand">按需加载</string>
   <string name="vision_geniex_on_demand_summary">闲置时卸载模型释放内存，下次使用时重新加载</string>
+  <string name="vision_compute_unit">计算单元</string>
+  <string name="vision_compute_auto">自动（Snapdragon 上为 NPU）</string>
 </resources>

@@ -142,7 +142,11 @@ internal class AgentImageTools(
     ): String {
         val local = settings.geniexLocalPath.trim()
         val run = if (local.isNotEmpty()) {
-            GenieXRunConfig(modelPath = local, runtimeId = GenieXModelCatalog.inferRuntime(local))
+            GenieXRunConfig(
+                modelPath = local,
+                runtimeId = GenieXModelCatalog.inferRuntime(local),
+                computeUnit = settings.geniexComputeUnit.takeIf { it.isNotBlank() },
+            )
         } else {
             val name = settings.geniexModel.trim()
             if (name.isEmpty()) throw GenieXVisionFailure("请填写模型名，或选择本地模型文件")
@@ -153,6 +157,7 @@ internal class AgentImageTools(
                 mmprojPath = paths.mmproj_path,
                 runtimeId = paths.runtime_id.ifBlank { GenieXModelCatalog.inferRuntime(name) },
                 contextSize = settings.geniexContextSize,
+                computeUnit = settings.geniexComputeUnit.takeIf { it.isNotBlank() },
             )
         }
         return try {

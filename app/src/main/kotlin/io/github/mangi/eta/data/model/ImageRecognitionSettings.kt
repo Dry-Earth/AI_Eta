@@ -28,5 +28,7 @@ data class ImageRecognitionSettings(
     val geniexLocalPath: String = "",
     /** 用完即卸载，避免 12 GB 机型长期占内存。 */
     val geniexOnDemand: Boolean = true,
+    /** 空串表示自动（Snapdragon 默认 NPU）；其余按官方取值 npu / gpu / cpu。 */
+    val geniexComputeUnit: String = "",
     val geniexContextSize: Int = 4096,
 )

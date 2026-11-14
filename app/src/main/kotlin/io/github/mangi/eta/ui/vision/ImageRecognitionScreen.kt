@@ -185,6 +185,31 @@ private fun VisionServiceFields(store: ImageRecognitionStore) {
             }
         }
         if (settings.engine == VisionEngine.GENIEX) {
+            val units = listOf(
+                stringResource(R.string.vision_compute_auto),
+                "NPU",
+                "GPU",
+                "CPU",
+            )
+            val unitValues = listOf("", "npu", "gpu", "cpu")
+            val selectedUnit = unitValues.indexOf(settings.geniexComputeUnit).coerceAtLeast(0)
+            val onUnit: (Int) -> Unit = { index ->
+                unitValues.getOrNull(index)?.let { store.edit(settings.copy(geniexComputeUnit = it)) }
+            }
+            when (LocalUiStyle.current) {
+                AppearanceUiStyle.COUI -> CouiDropdownPreference(
+                    title = stringResource(R.string.vision_compute_unit),
+                    items = units,
+                    selectedIndex = selectedUnit,
+                    onSelectedIndexChange = onUnit,
+                )
+                AppearanceUiStyle.MIUIX -> OverlayDropdownPreference(
+                    title = stringResource(R.string.vision_compute_unit),
+                    items = units,
+                    selectedIndex = selectedUnit,
+                    onSelectedIndexChange = onUnit,
+                )
+            }
             when (LocalUiStyle.current) {
                 AppearanceUiStyle.COUI -> CouiSwitchPreference(
                     title = stringResource(R.string.vision_geniex_on_demand),
