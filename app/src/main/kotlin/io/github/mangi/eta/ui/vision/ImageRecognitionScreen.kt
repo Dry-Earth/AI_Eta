@@ -11,6 +11,7 @@ import androidx.compose.ui.res.stringResource
 import com.itos.coui.layout.Divider
 import io.github.mangi.eta.R
 import io.github.mangi.eta.agent.vision.LocalVisionClient
+import io.github.mangi.eta.agent.vision.VisionFailure
 import io.github.mangi.eta.data.model.AppearanceUiStyle
 import io.github.mangi.eta.data.model.ImageRecognitionSettings
 import io.github.mangi.eta.ui.app.LocalUiStyle
@@ -41,7 +42,15 @@ internal fun ImageRecognitionScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val store = remember { ImageRecognitionStore(context, scope) }
     val settings = store.settings
-    val validate: (ImageRecognitionSettings) -> Unit = { LocalVisionClient.validate(it) }
+    val validate: (ImageRecognitionSettings) -> Unit = { config ->
+        if (config.engine == VisionEngine.GENIEX) {
+            if (config.geniexModel.isBlank() && config.geniexLocalPath.isBlank()) {
+                throw VisionFailure("请填写模型名，或选择本地模型文件")
+            }
+        } else {
+            LocalVisionClient.validate(config)
+        }
+    }
 
     when (LocalUiStyle.current) {
         AppearanceUiStyle.COUI -> {
