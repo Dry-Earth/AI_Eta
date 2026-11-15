@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.mangi.eta.R
 import io.github.mangi.eta.agent.geniex.GenieXModelCatalog
+import com.geniex.sdk.ModelManagerWrapper
 import io.github.mangi.eta.agent.geniex.GenieXModelManager
 import io.github.mangi.eta.agent.vision.VisionFailure
 import io.github.mangi.eta.data.model.ImageRecognitionSettings
@@ -117,9 +118,31 @@ internal class ImageRecognitionStore(
         message = "正在下载模型，可切到后台"
         messageIsError = false
         GenieXModelManager.ensureInitialized(context)
-        GenieXModelManager.pullByName(context, name).collect { }
+        GenieXModelManager.pullByName(context, name).collect { event ->
+            when (event) {
+                is ModelManagerWrapper.PullEvent.Progress -> {
+                    val done = event.files.sumOf { it.downloaded_bytes }
+                    val total = event.files.filter { it.total_bytes > 0 }.sumOf { it.total_bytes }
+                    message = if (total > 0) {
+                        "正在下载模型 " + (done * 100 / total) + "%（" + sizeText(done) + " / " + sizeText(total) + "）"
+                    } else {
+                        "正在下载模型 " + sizeText(done)
+                    }
+                    messageIsError = false
+                }
+                is ModelManagerWrapper.PullEvent.Error ->
+                    throw VisionFailure("模型下载失败：" + event.message)
+                else -> Unit
+            }
+        }
         if (GenieXModelManager.paths(name) == null) {
             throw VisionFailure("模型下载未完成，请重试")
         }
+    }
+
+    private fun sizeText(bytes: Long): String = when {
+        bytes >= 1_000_000_000L -> String.format("%.1f GB", bytes / 1_000_000_000.0)
+        bytes >= 1_000_000L -> String.format("%.0f MB", bytes / 1_000_000.0)
+        else -> String.format("%.0f KB", bytes / 1_000.0)
     }
 }
