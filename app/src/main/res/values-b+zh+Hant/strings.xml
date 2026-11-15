@@ -1426,4 +1426,7 @@
   <string name="vision_compute_auto">自動（Snapdragon 上為 NPU）</string>
   <string name="vision_block">停用圖片辨識</string>
   <string name="vision_block_summary">無論選哪個引擎，read_image 都會被直接拒絕</string>
+  <string name="vision_downloaded">已下載模型</string>
+  <string name="vision_downloaded_empty">還沒有已下載的模型</string>
+  <string name="vision_delete_model">刪除目前模型</string>
 </resources>

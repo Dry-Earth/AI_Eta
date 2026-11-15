@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.mangi.eta.R
+import io.github.mangi.eta.agent.geniex.GenieXModelCatalog
 import io.github.mangi.eta.agent.geniex.GenieXModelManager
 import io.github.mangi.eta.agent.vision.VisionFailure
 import io.github.mangi.eta.data.model.ImageRecognitionSettings
@@ -21,6 +22,8 @@ internal class ImageRecognitionStore(
 ) {
     var settings by mutableStateOf(ImageRecognitionSettings())
         private set
+    var downloaded by mutableStateOf<List<String>>(emptyList())
+        private set
     var loaded by mutableStateOf(false)
         private set
     var saving by mutableStateOf(false)
@@ -35,11 +38,39 @@ internal class ImageRecognitionStore(
             try {
                 settings = ImageRecognitionRepository.settings()
                 loaded = true
+                refreshDownloaded()
             } catch (error: Exception) {
                 if (error is CancellationException) throw error
                 message = context.getString(R.string.speech_load_failed)
                 messageIsError = true
             }
+        }
+    }
+
+    private suspend fun refreshDownloaded() {
+        downloaded = GenieXModelManager.downloaded()
+    }
+
+    fun refresh() {
+        scope.launch { runCatching { refreshDownloaded() } }
+    }
+
+    /** 选用已下载的模型：只写模型名，下次识图按需加载。 */
+    fun select(name: String) {
+        edit(settings.copy(engine = VisionEngine.GENIEX, geniexModel = name, geniexLocalPath = ""))
+        scope.launch {
+            runCatching { ImageRecognitionRepository.save(settings) }
+        }
+    }
+
+    fun removeSelected() {
+        val name = settings.geniexModel.trim()
+        if (name.isEmpty()) return
+        scope.launch {
+            runCatching { GenieXModelManager.remove(name) }
+            runCatching { refreshDownloaded() }
+            message = context.getString(R.string.speech_saved)
+            messageIsError = false
         }
     }
 

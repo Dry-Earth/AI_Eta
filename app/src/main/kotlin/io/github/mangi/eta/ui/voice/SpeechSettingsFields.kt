@@ -224,6 +224,35 @@ internal fun SpeechField(
 }
 
 /** 供没有 SpeechSettingsStore 的配置页复用同一套保存按钮与提示。 */
+/** 通用操作行：用于没有表单、只有动作为主的条目。 */
+@Composable
+internal fun SpeechActionRow(title: String, enabled: Boolean = true, onClick: () -> Unit) {
+    val uiStyle = LocalUiStyle.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = if (uiStyle == AppearanceUiStyle.COUI) CouiPageDefaults.horizontalMargin else 12.dp)
+            .padding(vertical = 4.dp),
+    ) {
+        if (uiStyle == AppearanceUiStyle.COUI) {
+            CouiButton(
+                text = title,
+                enabled = enabled,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onClick,
+            )
+        } else {
+            TextButton(
+                text = title,
+                enabled = enabled,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.textButtonColorsPrimary(),
+                onClick = onClick,
+            )
+        }
+    }
+}
+
 @Composable
 internal fun SpeechSaveBlock(
     loaded: Boolean,

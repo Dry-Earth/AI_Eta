@@ -22,6 +22,7 @@ import io.github.mangi.eta.data.model.VisionEngine
 import io.github.mangi.eta.ui.components.coui.CouiDropdownPreference
 import io.github.mangi.eta.ui.components.coui.CouiSwitchPreference
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import io.github.mangi.eta.ui.voice.SpeechActionRow
 import io.github.mangi.eta.ui.voice.SpeechField
 import io.github.mangi.eta.ui.voice.SpeechFieldColumn
 import io.github.mangi.eta.ui.voice.SpeechGroupCard
@@ -81,6 +82,26 @@ internal fun ImageRecognitionScreen(onBack: () -> Unit) {
                 if (settings.enabled) {
                     SpeechNote(stringResource(R.string.vision_note))
                 }
+                if (settings.engine == VisionEngine.GENIEX) {
+                    SpeechGroupCard(title = stringResource(R.string.vision_downloaded)) {
+                        if (store.downloaded.isEmpty()) {
+                            SpeechNote(stringResource(R.string.vision_downloaded_empty))
+                        } else {
+                            store.downloaded.forEach { name ->
+                                SpeechActionRow(
+                                    title = if (name == settings.geniexModel) "✓ " + name else name,
+                                    onClick = { store.select(name) },
+                                )
+                            }
+                        }
+                    }
+                    if (settings.geniexModel.isNotBlank()) {
+                        SpeechActionRow(
+                            title = stringResource(R.string.vision_delete_model),
+                            onClick = { store.removeSelected() },
+                        )
+                    }
+                }
                 SpeechSaveBlock(
                     loaded = store.loaded,
                     saving = store.saving,
@@ -122,6 +143,28 @@ internal fun ImageRecognitionScreen(onBack: () -> Unit) {
                 }
                 if (settings.enabled) {
                     item(key = "note") { SpeechNote(stringResource(R.string.vision_note)) }
+                }
+                item(key = "downloaded") {
+                    if (settings.engine == VisionEngine.GENIEX) {
+                        SpeechGroupCard(title = stringResource(R.string.vision_downloaded)) {
+                            if (store.downloaded.isEmpty()) {
+                                SpeechNote(stringResource(R.string.vision_downloaded_empty))
+                            } else {
+                                store.downloaded.forEach { name ->
+                                    SpeechActionRow(
+                                        title = if (name == settings.geniexModel) "✓ " + name else name,
+                                        onClick = { store.select(name) },
+                                    )
+                                }
+                            }
+                        }
+                        if (settings.geniexModel.isNotBlank()) {
+                            SpeechActionRow(
+                                title = stringResource(R.string.vision_delete_model),
+                                onClick = { store.removeSelected() },
+                            )
+                        }
+                    }
                 }
                 item(key = "save") {
                     SpeechSaveBlock(

@@ -1549,4 +1549,7 @@
   <string name="vision_compute_auto">Auto (NPU on Snapdragon)</string>
   <string name="vision_block">Disable image recognition</string>
   <string name="vision_block_summary">Refuse every read_image call, whatever engine is selected</string>
+  <string name="vision_downloaded">Downloaded models</string>
+  <string name="vision_downloaded_empty">Nothing downloaded yet</string>
+  <string name="vision_delete_model">Delete the selected model</string>
 </resources>
