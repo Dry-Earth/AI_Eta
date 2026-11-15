@@ -1528,4 +1528,6 @@
   <string name="vision_geniex_on_demand_summary">闲置时卸载模型释放内存，下次使用时重新加载</string>
   <string name="vision_compute_unit">计算单元</string>
   <string name="vision_compute_auto">自动（Snapdragon 上为 NPU）</string>
+  <string name="vision_block">禁用图片识别</string>
+  <string name="vision_block_summary">无论选哪个引擎，read_image 都会被直接拒绝</string>
 </resources>

@@ -32,6 +32,9 @@ internal class AgentImageTools(
     private val rootAvailable: () -> Boolean = { RootAccess.isGranted },
 ) {
     fun readImage(args: JSONObject): AgentModelClient.ToolResult {
+        if (runBlocking { ImageRecognitionRepository.settings() }.blockImageTools) {
+            return sensitive(error("IMAGE_DISABLED", "图片识别已在设置中禁用"))
+        }
         val source = args.getString("path").removePrefix("file://")
         val sourceKind = when {
             source.startsWith("content://") -> ImageSourceKind.ContentUri

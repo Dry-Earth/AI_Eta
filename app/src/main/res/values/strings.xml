@@ -1547,4 +1547,6 @@
   <string name="vision_geniex_on_demand_summary">Unload the model when idle to free memory; reload on next use</string>
   <string name="vision_compute_unit">Compute unit</string>
   <string name="vision_compute_auto">Auto (NPU on Snapdragon)</string>
+  <string name="vision_block">Disable image recognition</string>
+  <string name="vision_block_summary">Refuse every read_image call, whatever engine is selected</string>
 </resources>

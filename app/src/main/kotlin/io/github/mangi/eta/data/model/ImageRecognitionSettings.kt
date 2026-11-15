@@ -15,6 +15,8 @@ enum class VisionEngine { HTTP, GENIEX }
 @Serializable
 data class ImageRecognitionSettings(
     val enabled: Boolean = false,
+    /** 总开关：为 true 时 read_image 直接拒绝，任何引擎都不读图。 */
+    val blockImageTools: Boolean = false,
     val engine: VisionEngine = VisionEngine.HTTP,
     // HTTP 引擎
     val baseUrl: String = "http://127.0.0.1:11434",

@@ -61,6 +61,13 @@ internal fun ImageRecognitionScreen(onBack: () -> Unit) {
                 }
                 SpeechGroupCard(title = stringResource(R.string.vision_group_service)) {
                     CouiSwitchPreference(
+                        title = stringResource(R.string.vision_block),
+                        summary = stringResource(R.string.vision_block_summary),
+                        checked = settings.blockImageTools,
+                        onCheckedChange = { store.edit(settings.copy(blockImageTools = it)) },
+                    )
+                    Divider()
+                    CouiSwitchPreference(
                         title = stringResource(R.string.vision_enabled),
                         summary = stringResource(R.string.vision_enabled_summary),
                         checked = settings.enabled,
@@ -96,6 +103,12 @@ internal fun ImageRecognitionScreen(onBack: () -> Unit) {
                 }
                 item(key = "service") {
                     SpeechGroupCard(title = stringResource(R.string.vision_group_service)) {
+                        SwitchPreference(
+                            title = stringResource(R.string.vision_block),
+                            summary = stringResource(R.string.vision_block_summary),
+                            checked = settings.blockImageTools,
+                            onCheckedChange = { store.edit(settings.copy(blockImageTools = it)) },
+                        )
                         SwitchPreference(
                             title = stringResource(R.string.vision_enabled),
                             summary = stringResource(R.string.vision_enabled_summary),
