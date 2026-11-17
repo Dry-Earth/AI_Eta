@@ -72,6 +72,7 @@ import io.github.mangi.eta.ui.model.roleplayChatUi
 import io.github.mangi.eta.ui.navigation.AgentNavigator
 import io.github.mangi.eta.ui.navigation.AppRoute
 import io.github.mangi.eta.ui.vision.ImageRecognitionScreen
+import io.github.mangi.eta.ui.geniex.GenieXModelsScreen
 import io.github.mangi.eta.ui.pages.providers.CommunityCatalogProviderScreen
 import io.github.mangi.eta.ui.pages.providers.CommunityCatalogScreen
 import io.github.mangi.eta.ui.pages.providers.ModelProviderDetailScreen
@@ -351,7 +352,7 @@ fun AgentAppRoot(
             },
             onOpenTools = { pushRoute(AppRoute.Tools) },
             onOpenSkills = { pushRoute(AppRoute.Skills) },
-            onOpenGenieXModels = { pushRoute(AppRoute.ImageRecognition) },
+            onOpenGenieXModels = { pushRoute(AppRoute.GenieXModels) },
             onOpenCharacters = { pushRoute(AppRoute.Characters) },
             onOpenPermissions = { pushRoute(AppRoute.Permissions) },
             onOpenSettings = { pushRoute(AppRoute.Settings) },
@@ -684,6 +685,9 @@ fun AgentAppRoot(
             }
             entry<AppRoute.Workspace>(swipeDismiss = swipeDismiss) {
                 WorkspaceScreen(onBack = ::popRoute)
+            }
+            entry<AppRoute.GenieXModels>(swipeDismiss = swipeDismiss) {
+                GenieXModelsScreen(onBack = ::popRoute)
             }
             entry<AppRoute.ImageRecognition>(swipeDismiss = swipeDismiss) {
                 ImageRecognitionScreen(onBack = ::popRoute)

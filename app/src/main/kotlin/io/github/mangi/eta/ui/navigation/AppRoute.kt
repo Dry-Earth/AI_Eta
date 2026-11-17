@@ -76,6 +76,9 @@ sealed interface AppRoute : NavKey {
     data object ImageRecognition : AppRoute
 
     @Serializable
+    data object GenieXModels : AppRoute
+
+    @Serializable
     data object DataBackup : AppRoute
 
     @Serializable
