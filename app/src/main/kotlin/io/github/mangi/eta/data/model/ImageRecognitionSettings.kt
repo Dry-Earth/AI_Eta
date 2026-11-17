@@ -23,6 +23,8 @@ data class ImageRecognitionSettings(
     val path: String = "/v1/chat/completions",
     val model: String = "",
     val maxTokens: Int = 1024,
+    /** 可选：OpenAI 兼容服务的 API Key，填了就带 Authorization: Bearer。 */
+    val apiKey: String = "",
     // GenieX 引擎
     /** 官方模型名（org/repo、AI Hub id）或 HuggingFace 链接；保存时会按此下载。 */
     val geniexModel: String = "",

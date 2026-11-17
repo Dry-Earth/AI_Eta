@@ -1558,4 +1558,5 @@
   <string name="vision_hub_modelscope">ModelScope (faster in mainland China)</string>
   <string name="vision_hub_aihub">Qualcomm AI Hub</string>
   <string name="vision_geniex_mmproj">Vision projector (mmproj) path, optional</string>
+  <string name="vision_api_key">API key, optional</string>
 </resources>

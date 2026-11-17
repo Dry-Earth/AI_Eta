@@ -81,10 +81,13 @@ internal object LocalVisionClient {
                     ),
                 ),
             )
-        val request = Request.Builder()
+        val builder = Request.Builder()
             .url(url)
             .post(body.toString().toRequestBody(jsonMedia))
-            .build()
+        settings.apiKey.trim().takeIf { it.isNotEmpty() }?.let {
+            builder.header("Authorization", "Bearer " + it)
+        }
+        val request = builder.build()
         val payload = client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 val detail = runCatching { response.body.string().take(200) }.getOrDefault("")

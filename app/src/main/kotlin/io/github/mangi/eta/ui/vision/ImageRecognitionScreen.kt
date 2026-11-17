@@ -227,6 +227,11 @@ private fun VisionServiceFields(store: ImageRecognitionStore) {
                     value = settings.model,
                     onChange = { store.edit(settings.copy(model = it.trim())) },
                 )
+                SpeechField(
+                    label = stringResource(R.string.vision_api_key),
+                    value = settings.apiKey,
+                    onChange = { store.edit(settings.copy(apiKey = it.trim())) },
+                )
             } else {
                 SpeechField(
                     label = stringResource(R.string.vision_geniex_model),
