@@ -29,4 +29,6 @@ runs:
     # 设备内 GenieX SDK：所有构建（含 PR Check）都需要 AAR，否则引用 SDK 的代码无法编译。
     - name: 准备 GenieX SDK
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: bash scripts/fetch-geniex-sdk.sh

@@ -6,6 +6,9 @@
 # - 两者都不进仓库，避免把 80 MB 二进制和易变清单提交进去。
 set -euo pipefail
 
+auth=()
+if [[ -n "${GH_TOKEN:-}" ]]; then auth=(-H "Authorization: Bearer $GH_TOKEN"); fi
+
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 libs="$root/app/libs"
 assets="$root/app/src/main/assets/geniex"
@@ -17,7 +20,8 @@ if [[ "${ETA_SKIP_GENIEX_SDK:-0}" == "1" ]]; then
 fi
 
 api="https://api.github.com/repos/qualcomm/GenieX/releases/latest"
-tag="$(curl -fsSL "$api" | grep -o '"tag_name": *"[^"]*"' | head -n 1 | sed 's/.*"\([^"]*\)"$/\1/')"
+tag="$(curl -fsSL "${auth[@]}" "$api" | grep -o '"tag_name": *"[^"]*"' | head -n 1 | sed 's/.*"\([^"]*\)"$/\1/')"
+if [[ -z "$tag" ]]; then tag="v0.11.0"; echo "::warning::无法查询 GenieX 最新版本，回退到 $tag"; fi
 if [[ -z "$tag" ]]; then
   echo "::error::无法获取 GenieX 最新版本号"
   exit 1
@@ -29,8 +33,8 @@ base="https://github.com/qualcomm/GenieX/releases/download/$tag"
 target="$libs/geniex-android.aar"
 
 echo "下载 $aar_name"
-curl -fL --retry 4 --retry-delay 3 --connect-timeout 30 -o "$target.part" "$base/$aar_name"
-curl -fL --retry 4 --retry-delay 3 --connect-timeout 30 -o "$target.sha256" "$base/$aar_name.sha256"
+curl -fL "${auth[@]}" --retry 4 --retry-delay 3 --connect-timeout 30 -o "$target.part" "$base/$aar_name"
+curl -fL "${auth[@]}" --retry 4 --retry-delay 3 --connect-timeout 30 -o "$target.sha256" "$base/$aar_name.sha256"
 
 expected="$(grep -oE '[0-9a-fA-F]{64}' "$target.sha256" | head -n 1 | tr 'A-Z' 'a-z')"
 actual="$(sha256sum "$target.part" | cut -d' ' -f1)"

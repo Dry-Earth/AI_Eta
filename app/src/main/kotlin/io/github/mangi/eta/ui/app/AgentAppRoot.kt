@@ -71,6 +71,7 @@ import io.github.mangi.eta.ui.model.PermissionStatusUi
 import io.github.mangi.eta.ui.model.roleplayChatUi
 import io.github.mangi.eta.ui.navigation.AgentNavigator
 import io.github.mangi.eta.ui.navigation.AppRoute
+import io.github.mangi.eta.ui.vision.ImageRecognitionScreen
 import io.github.mangi.eta.ui.pages.providers.CommunityCatalogProviderScreen
 import io.github.mangi.eta.ui.pages.providers.CommunityCatalogScreen
 import io.github.mangi.eta.ui.pages.providers.ModelProviderDetailScreen
@@ -104,7 +105,6 @@ import io.github.mangi.eta.ui.voice.SpeechOssScreen
 import io.github.mangi.eta.ui.voice.SpeechRecognitionScreen
 import io.github.mangi.eta.ui.voice.SpeechSettingsScreen
 import io.github.mangi.eta.ui.voice.SpeechSynthesisScreen
-import io.github.mangi.eta.ui.vision.ImageRecognitionScreen
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -156,10 +156,8 @@ fun AgentAppRoot(
     var navigationResetKey by rememberSaveable { mutableIntStateOf(0) }
     val appViewModel = viewModel<AgentAppViewModel>()
     val agentState = appViewModel.state
-    val runtimeActive by AgentRuntimeService.keepScreenOn.collectAsState()
+    val keepScreenOn by AgentRuntimeService.keepScreenOn.collectAsState()
     val view = LocalView.current
-    val keepScreenOn = backStack.lastOrNull() == AppRoute.Home &&
-        agentState.homeState.isStreaming && runtimeActive
     DisposableEffect(view, keepScreenOn) {
         view.keepScreenOn = keepScreenOn
         onDispose { view.keepScreenOn = false }
@@ -182,7 +180,6 @@ fun AgentAppRoot(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 RootAccess.refresh(context)
-                appViewModel.refreshKimiWeb()
                 permissionHealth.refreshPermissionHealth()
                 agentState.refreshRuntimeResults()
             }
@@ -332,26 +329,6 @@ fun AgentAppRoot(
             onSearchConversations = { query -> agentState.updateSearchQuery(query) },
             onNewConversation = { createConversation() },
             onOpenTerminal = { pushRoute(AppRoute.Terminal) },
-            onLaunchKimiWeb = {
-                requestExecutionNotifications()
-                if (appViewModel.kimiWebState.phase != KimiWebPhase.NOT_INSTALLED) {
-                    appViewModel.launchKimiWeb { result ->
-                        if (result is KimiWebLaunchResult.Failed) {
-                            Toast.makeText(
-                                context,
-                                result.message(context),
-                                Toast.LENGTH_LONG,
-                            ).show()
-                        }
-                    }
-                } else {
-                    pushRoute(AppRoute.LinuxEnvironment)
-                }
-            },
-            kimiWebLabel = appViewModel.kimiWebState.actionLabel(context),
-            canStopKimiWeb = appViewModel.kimiWebState.canStop,
-            onStopKimiWeb = appViewModel::stopKimiWeb,
-            onRefreshKimiWeb = appViewModel::refreshKimiWeb,
             onOpenBrowser = { openConversationBrowser() },
             onSelectConversation = { conversationId -> selectConversation(conversationId) },
             onConversationTogglePin = { conversation ->
@@ -374,6 +351,7 @@ fun AgentAppRoot(
             },
             onOpenTools = { pushRoute(AppRoute.Tools) },
             onOpenSkills = { pushRoute(AppRoute.Skills) },
+            onOpenGenieXModels = { pushRoute(AppRoute.ImageRecognition) },
             onOpenCharacters = { pushRoute(AppRoute.Characters) },
             onOpenPermissions = { pushRoute(AppRoute.Permissions) },
             onOpenSettings = { pushRoute(AppRoute.Settings) },
@@ -707,6 +685,9 @@ fun AgentAppRoot(
             entry<AppRoute.Workspace>(swipeDismiss = swipeDismiss) {
                 WorkspaceScreen(onBack = ::popRoute)
             }
+            entry<AppRoute.ImageRecognition>(swipeDismiss = swipeDismiss) {
+                ImageRecognitionScreen(onBack = ::popRoute)
+            }
             entry<AppRoute.Settings>(swipeDismiss = swipeDismiss) {
                 val answerInlineStyle = rememberMarkdownStyle(MarkdownTone.Answer).inline
                 val savedMemoryContent = memory.memoryState.savedContent
@@ -745,9 +726,6 @@ fun AgentAppRoot(
             }
             entry<AppRoute.SpeechOss>(swipeDismiss = swipeDismiss) {
                 SpeechOssScreen(onBack = ::popRoute)
-            }
-            entry<AppRoute.ImageRecognition>(swipeDismiss = swipeDismiss) {
-                ImageRecognitionScreen(onBack = ::popRoute)
             }
             entry<AppRoute.AppearanceSettings>(swipeDismiss = swipeDismiss) {
                 AppearanceSettingsScreen(onBack = ::popRoute)

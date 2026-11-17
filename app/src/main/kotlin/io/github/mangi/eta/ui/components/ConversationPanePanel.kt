@@ -131,6 +131,7 @@ internal fun ConversationPanePanel(
     onOpenModelProviders: () -> Unit,
     onOpenTools: () -> Unit,
     onOpenSkills: () -> Unit,
+    onOpenGenieXModels: () -> Unit = onOpenSkills,
     onOpenCharacters: () -> Unit,
     onOpenPermissions: () -> Unit,
     modifier: Modifier = Modifier,
@@ -193,6 +194,7 @@ internal fun ConversationPanePanel(
                                         onOpenCharacters = onOpenCharacters,
                                         onOpenTools = onOpenTools,
                                         onOpenSkills = onOpenSkills,
+                                        onOpenGenieXModels = onOpenGenieXModels,
                                     )
                                 }
                             }
@@ -288,6 +290,7 @@ private fun PaneWorkbenchSection(
     onOpenCharacters: () -> Unit,
     onOpenTools: () -> Unit,
     onOpenSkills: () -> Unit,
+    onOpenGenieXModels: () -> Unit = onOpenSkills,
 ) {
     val modelSummary = activeModelLabel?.takeIf { it.isNotBlank() }
         ?: stringResource(R.string.conversation_model_unconfigured)
@@ -312,6 +315,11 @@ private fun PaneWorkbenchSection(
             icon = ConversationPaneIcons.Skills,
             title = stringResource(R.string.route_skills),
             onClick = onOpenSkills,
+        ),
+        WorkbenchEntry(
+            icon = ConversationPaneIcons.Model,
+            title = stringResource(R.string.route_geniex_models),
+            onClick = onOpenGenieXModels,
         ),
     )
 

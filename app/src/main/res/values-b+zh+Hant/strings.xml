@@ -1429,4 +1429,5 @@
   <string name="vision_downloaded">已下載模型</string>
   <string name="vision_downloaded_empty">還沒有已下載的模型</string>
   <string name="vision_delete_model">刪除目前模型</string>
+  <string name="route_geniex_models">GenieX 模型</string>
 </resources>
