@@ -32,5 +32,7 @@ data class ImageRecognitionSettings(
     val geniexOnDemand: Boolean = true,
     /** 空串表示自动（Snapdragon 默认 NPU）；其余按官方取值 npu / gpu / cpu。 */
     val geniexComputeUnit: String = "",
+    /** 模型来源：HUGGINGFACE / MODELSCOPE / AIHUB / AUTO。 */
+    val geniexHub: String = "HUGGINGFACE",
     val geniexContextSize: Int = 4096,
 )

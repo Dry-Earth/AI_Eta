@@ -1534,4 +1534,8 @@
   <string name="vision_downloaded_empty">还没有已下载的模型</string>
   <string name="vision_delete_model">删除当前模型</string>
   <string name="route_geniex_models">GenieX 模型</string>
+  <string name="vision_hub_source">模型来源</string>
+  <string name="vision_hub_hf">HuggingFace</string>
+  <string name="vision_hub_modelscope">魔塔 ModelScope（国内更快）</string>
+  <string name="vision_hub_aihub">高通 AI Hub</string>
 </resources>

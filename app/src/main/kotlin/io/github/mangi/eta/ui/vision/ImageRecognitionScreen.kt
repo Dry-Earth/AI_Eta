@@ -241,6 +241,30 @@ private fun VisionServiceFields(store: ImageRecognitionStore) {
             }
         }
         if (settings.engine == VisionEngine.GENIEX) {
+            val hubs = listOf(
+                stringResource(R.string.vision_hub_hf),
+                stringResource(R.string.vision_hub_modelscope),
+                stringResource(R.string.vision_hub_aihub),
+            )
+            val hubValues = listOf("HUGGINGFACE", "MODELSCOPE", "AIHUB")
+            val selectedHub = hubValues.indexOf(settings.geniexHub).coerceAtLeast(0)
+            val onHub: (Int) -> Unit = { index ->
+                hubValues.getOrNull(index)?.let { store.edit(settings.copy(geniexHub = it)) }
+            }
+            when (LocalUiStyle.current) {
+                AppearanceUiStyle.COUI -> CouiDropdownPreference(
+                    title = stringResource(R.string.vision_hub_source),
+                    items = hubs,
+                    selectedIndex = selectedHub,
+                    onSelectedIndexChange = onHub,
+                )
+                AppearanceUiStyle.MIUIX -> OverlayDropdownPreference(
+                    title = stringResource(R.string.vision_hub_source),
+                    items = hubs,
+                    selectedIndex = selectedHub,
+                    onSelectedIndexChange = onHub,
+                )
+            }
             val units = listOf(
                 stringResource(R.string.vision_compute_auto),
                 "NPU",

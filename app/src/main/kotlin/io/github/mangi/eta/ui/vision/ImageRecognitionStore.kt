@@ -118,7 +118,7 @@ internal class ImageRecognitionStore(
         message = "正在下载模型，可切到后台"
         messageIsError = false
         GenieXModelManager.ensureInitialized(context)
-        GenieXModelManager.pullByName(context, name).collect { event ->
+        GenieXModelManager.pullByName(context, name, config.geniexHub).collect { event ->
             when (event) {
                 is ModelManagerWrapper.PullEvent.Progress -> {
                     val done = event.files.sumOf { it.downloaded_bytes }

@@ -1552,5 +1552,9 @@
   <string name="vision_downloaded">Downloaded models</string>
   <string name="vision_downloaded_empty">Nothing downloaded yet</string>
   <string name="vision_delete_model">Delete the selected model</string>
-  <string name="route_geniex_models">GenieX 模型</string>
+  <string name="route_geniex_models">GenieX models</string>
+  <string name="vision_hub_source">Model source</string>
+  <string name="vision_hub_hf">HuggingFace</string>
+  <string name="vision_hub_modelscope">ModelScope (faster in mainland China)</string>
+  <string name="vision_hub_aihub">Qualcomm AI Hub</string>
 </resources>
