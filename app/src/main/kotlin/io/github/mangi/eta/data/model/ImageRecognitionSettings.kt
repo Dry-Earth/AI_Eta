@@ -28,6 +28,8 @@ data class ImageRecognitionSettings(
     val geniexModel: String = "",
     /** 已经下载好的本地模型路径；填写后不再联网下载。 */
     val geniexLocalPath: String = "",
+    /** 视觉模型需要的 mmproj 文件路径；纯文本模型可留空。 */
+    val geniexMmprojPath: String = "",
     /** 用完即卸载，避免 12 GB 机型长期占内存。 */
     val geniexOnDemand: Boolean = true,
     /** 空串表示自动（Snapdragon 默认 NPU）；其余按官方取值 npu / gpu / cpu。 */

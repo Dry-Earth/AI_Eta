@@ -238,6 +238,11 @@ private fun VisionServiceFields(store: ImageRecognitionStore) {
                     value = settings.geniexLocalPath,
                     onChange = { store.edit(settings.copy(geniexLocalPath = it.trim())) },
                 )
+                SpeechField(
+                    label = stringResource(R.string.vision_geniex_mmproj),
+                    value = settings.geniexMmprojPath,
+                    onChange = { store.edit(settings.copy(geniexMmprojPath = it.trim())) },
+                )
             }
         }
         if (settings.engine == VisionEngine.GENIEX) {

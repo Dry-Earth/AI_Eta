@@ -147,6 +147,7 @@ internal class AgentImageTools(
         val run = if (local.isNotEmpty()) {
             GenieXRunConfig(
                 modelPath = local,
+                mmprojPath = settings.geniexMmprojPath.trim().takeIf { it.isNotEmpty() },
                 runtimeId = GenieXModelCatalog.inferRuntime(local),
                 computeUnit = settings.geniexComputeUnit.takeIf { it.isNotBlank() },
             )

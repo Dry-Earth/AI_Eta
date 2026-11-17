@@ -1434,4 +1434,5 @@
   <string name="vision_hub_hf">HuggingFace</string>
   <string name="vision_hub_modelscope">魔塔 ModelScope（中國大陸較快）</string>
   <string name="vision_hub_aihub">高通 AI Hub</string>
+  <string name="vision_geniex_mmproj">視覺投影檔（mmproj）路徑，可留空</string>
 </resources>
