@@ -1550,4 +1550,5 @@
   <string name="geniex_server_stop">停止并释放模型内存</string>
   <string name="geniex_server_running">运行中：http://127.0.0.1:8790/v1（模型名填已下载的模型目录）</string>
   <string name="geniex_server_stopped">未启动。使用前先启动，再把 provider 指向 127.0.0.1:8790</string>
+  <string name="geniex_chat_start">用这个模型开始对话</string>
 </resources>

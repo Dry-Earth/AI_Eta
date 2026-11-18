@@ -1569,4 +1569,5 @@
   <string name="geniex_server_stop">Stop and free model memory</string>
   <string name="geniex_server_running">Running at http://127.0.0.1:8790/v1 (model name = downloaded model directory)</string>
   <string name="geniex_server_stopped">Stopped. Start it before pointing a provider at 127.0.0.1:8790</string>
+  <string name="geniex_chat_start">Start a chat with this model</string>
 </resources>

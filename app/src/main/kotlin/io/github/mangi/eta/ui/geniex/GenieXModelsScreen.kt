@@ -14,6 +14,11 @@ import androidx.compose.ui.res.stringResource
 import com.itos.coui.layout.Divider
 import io.github.mangi.eta.R
 import io.github.mangi.eta.agent.geniex.GenieXLocalServer
+import io.github.mangi.eta.agent.geniex.GenieXModelManager
+import io.github.mangi.eta.data.model.Model
+import io.github.mangi.eta.data.model.OpenAiCompatibleProviderSetting
+import io.github.mangi.eta.data.repository.ProviderRepository
+import kotlinx.coroutines.launch
 import io.github.mangi.eta.agent.vision.VisionFailure
 import io.github.mangi.eta.data.model.AppearanceUiStyle
 import io.github.mangi.eta.data.model.ImageRecognitionSettings
@@ -197,6 +202,41 @@ private fun GenieXContent(
                 },
             )
         }
+        val chatScope = rememberCoroutineScope()
+        SpeechActionRow(
+            title = stringResource(R.string.geniex_chat_start),
+            onClick = {
+                val model = settings.geniexModel.trim()
+                GenieXLocalServer.start(context)
+                chatScope.launch {
+                    runCatching {
+                        if (model.isNotEmpty()) {
+                            GenieXModelManager.ensureInitialized(context)
+                            val entry = Model(
+                                id = LOCAL_MODEL_ID,
+                                modelId = model,
+                                displayName = model,
+                                inputModalities = listOf("text", "image"),
+                                attachment = true,
+                                toolCall = false,
+                            )
+                            if (ProviderRepository.providerById(LOCAL_PROVIDER_ID) == null) {
+                                ProviderRepository.addProvider(
+                                    OpenAiCompatibleProviderSetting(
+                                        id = LOCAL_PROVIDER_ID,
+                                        name = "本地 GenieX",
+                                        baseUrl = LOCAL_BASE_URL,
+                                        models = listOf(entry),
+                                    ),
+                                )
+                            } else {
+                                ProviderRepository.replaceModels(LOCAL_PROVIDER_ID, listOf(entry))
+                            }
+                        }
+                    }
+                }
+            },
+        )
         SpeechActionRow(
             title = stringResource(R.string.vision_title),
             onClick = onOpenVision,
@@ -204,3 +244,7 @@ private fun GenieXContent(
         SpeechNote(stringResource(R.string.vision_note))
     }
 }
+
+private const val LOCAL_PROVIDER_ID = "geniex-local"
+private const val LOCAL_MODEL_ID = "geniex-local-model"
+private const val LOCAL_BASE_URL = "http://127.0.0.1:8790/v1"
