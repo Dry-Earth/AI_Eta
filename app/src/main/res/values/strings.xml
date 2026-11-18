@@ -1559,4 +1559,9 @@
   <string name="vision_hub_aihub">Qualcomm AI Hub</string>
   <string name="vision_geniex_mmproj">Vision projector (mmproj) path, optional</string>
   <string name="vision_api_key">API key, optional</string>
+  <string name="vision_mode">Image recognition</string>
+  <string name="vision_mode_block">Disabled</string>
+  <string name="vision_mode_default">System default (send image to chat model)</string>
+  <string name="vision_mode_geniex">On-device GenieX</string>
+  <string name="vision_mode_http">Local HTTP service</string>
 </resources>

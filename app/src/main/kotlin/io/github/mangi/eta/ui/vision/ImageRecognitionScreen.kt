@@ -61,6 +61,7 @@ internal fun ImageRecognitionScreen(onBack: () -> Unit) {
                     return@CouiScaffoldPage
                 }
                 SpeechGroupCard(title = stringResource(R.string.vision_group_service)) {
+                    VisionModeRow(store, settings)
                     CouiSwitchPreference(
                         title = stringResource(R.string.vision_block),
                         summary = stringResource(R.string.vision_block_summary),
@@ -124,6 +125,8 @@ internal fun ImageRecognitionScreen(onBack: () -> Unit) {
                 }
                 item(key = "service") {
                     SpeechGroupCard(title = stringResource(R.string.vision_group_service)) {
+                        VisionModeRow(store, settings)
+                    VisionModeRow(store, settings)
                         SwitchPreference(
                             title = stringResource(R.string.vision_block),
                             summary = stringResource(R.string.vision_block_summary),
@@ -314,6 +317,56 @@ private fun VisionServiceFields(store: ImageRecognitionStore) {
                     onCheckedChange = { store.edit(settings.copy(geniexOnDemand = it)) },
                 )
             }
+        }
+    }
+}
+
+private enum class VisionMode { BLOCK, DEFAULT, GENIEX, HTTP }
+
+private fun modeOf(settings: ImageRecognitionSettings): VisionMode = when {
+    settings.blockImageTools -> VisionMode.BLOCK
+    !settings.enabled -> VisionMode.DEFAULT
+    settings.engine == VisionEngine.GENIEX -> VisionMode.GENIEX
+    else -> VisionMode.HTTP
+}
+
+private fun applyMode(settings: ImageRecognitionSettings, mode: VisionMode): ImageRecognitionSettings = when (mode) {
+    VisionMode.BLOCK -> settings.copy(blockImageTools = true, enabled = false)
+    VisionMode.DEFAULT -> settings.copy(blockImageTools = false, enabled = false)
+    VisionMode.GENIEX -> settings.copy(blockImageTools = false, enabled = true, engine = VisionEngine.GENIEX)
+    VisionMode.HTTP -> settings.copy(blockImageTools = false, enabled = true, engine = VisionEngine.HTTP)
+}
+
+@Composable
+private fun VisionModeRow(store: ImageRecognitionStore, settings: ImageRecognitionSettings) {
+    val items = listOf(
+        stringResource(R.string.vision_mode_block),
+        stringResource(R.string.vision_mode_default),
+        stringResource(R.string.vision_mode_geniex),
+        stringResource(R.string.vision_mode_http),
+    )
+    val values = VisionMode.entries
+    val selected = modeOf(settings).ordinal
+    val onSelect: (Int) -> Unit = { index ->
+        values.getOrNull(index)?.let { mode -> store.edit(applyMode(settings, mode)) }
+    }
+    when (LocalUiStyle.current) {
+        AppearanceUiStyle.COUI -> {
+            CouiDropdownPreference(
+                title = stringResource(R.string.vision_mode),
+                items = items,
+                selectedIndex = selected,
+                onSelectedIndexChange = onSelect,
+            )
+            Divider()
+        }
+        AppearanceUiStyle.MIUIX -> {
+            OverlayDropdownPreference(
+                title = stringResource(R.string.vision_mode),
+                items = items,
+                selectedIndex = selected,
+                onSelectedIndexChange = onSelect,
+            )
         }
     }
 }

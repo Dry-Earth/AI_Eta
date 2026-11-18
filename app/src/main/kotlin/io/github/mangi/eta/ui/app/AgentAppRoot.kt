@@ -687,7 +687,7 @@ fun AgentAppRoot(
                 WorkspaceScreen(onBack = ::popRoute)
             }
             entry<AppRoute.GenieXModels>(swipeDismiss = swipeDismiss) {
-                GenieXModelsScreen(onBack = ::popRoute)
+                GenieXModelsScreen(onBack = ::popRoute, onOpenVision = { pushRoute(AppRoute.ImageRecognition) })
             }
             entry<AppRoute.ImageRecognition>(swipeDismiss = swipeDismiss) {
                 ImageRecognitionScreen(onBack = ::popRoute)

@@ -37,7 +37,7 @@ import top.yukonga.miuix.kmp.preference.SwitchPreference
  * 后续「角色本地模型」也会复用同一份模型选择。
  */
 @Composable
-internal fun GenieXModelsScreen(onBack: () -> Unit) {
+internal fun GenieXModelsScreen(onBack: () -> Unit, onOpenVision: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val store = remember { ImageRecognitionStore(context, scope) }
@@ -49,7 +49,7 @@ internal fun GenieXModelsScreen(onBack: () -> Unit) {
                     SpeechLoadingState(store.message)
                     return@CouiScaffoldPage
                 }
-                GenieXContent(store, settings)
+                GenieXContent(store, settings, onOpenVision)
                 SpeechSaveBlock(
                     loaded = store.loaded,
                     saving = store.saving,
@@ -70,7 +70,7 @@ internal fun GenieXModelsScreen(onBack: () -> Unit) {
                     item(key = "loading") { SpeechLoadingState(store.message) }
                     return@MiuixScaffoldPage
                 }
-                item(key = "content") { GenieXContent(store, settings) }
+                item(key = "content") { GenieXContent(store, settings, onOpenVision) }
                 item(key = "save") {
                     SpeechSaveBlock(
                         loaded = store.loaded,
@@ -92,7 +92,11 @@ private fun validateForGenieX(config: ImageRecognitionSettings) {
 }
 
 @Composable
-private fun GenieXContent(store: ImageRecognitionStore, settings: ImageRecognitionSettings) {
+private fun GenieXContent(
+    store: ImageRecognitionStore,
+    settings: ImageRecognitionSettings,
+    onOpenVision: () -> Unit,
+) {
     val hubs = listOf(
         stringResource(R.string.vision_hub_hf),
         stringResource(R.string.vision_hub_modelscope),
@@ -171,6 +175,10 @@ private fun GenieXContent(store: ImageRecognitionStore, settings: ImageRecogniti
                 onClick = { store.removeSelected() },
             )
         }
+        SpeechActionRow(
+            title = stringResource(R.string.vision_title),
+            onClick = onOpenVision,
+        )
         SpeechNote(stringResource(R.string.vision_note))
     }
 }

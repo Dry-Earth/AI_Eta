@@ -1540,4 +1540,9 @@
   <string name="vision_hub_aihub">高通 AI Hub</string>
   <string name="vision_geniex_mmproj">视觉投影文件（mmproj）路径，可留空</string>
   <string name="vision_api_key">API Key（可选）</string>
+  <string name="vision_mode">图片识别</string>
+  <string name="vision_mode_block">禁用</string>
+  <string name="vision_mode_default">系统默认（图片直接给对话模型）</string>
+  <string name="vision_mode_geniex">设备内 GenieX</string>
+  <string name="vision_mode_http">本地 HTTP 服务</string>
 </resources>
