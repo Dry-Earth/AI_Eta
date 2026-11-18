@@ -1545,4 +1545,9 @@
   <string name="vision_mode_default">系统默认（图片直接给对话模型）</string>
   <string name="vision_mode_geniex">设备内 GenieX</string>
   <string name="vision_mode_http">本地 HTTP 服务</string>
+  <string name="geniex_server_group">本地对话服务</string>
+  <string name="geniex_server_start">启动本地模型服务</string>
+  <string name="geniex_server_stop">停止并释放模型内存</string>
+  <string name="geniex_server_running">运行中：http://127.0.0.1:8790/v1（模型名填已下载的模型目录）</string>
+  <string name="geniex_server_stopped">未启动。使用前先启动，再把 provider 指向 127.0.0.1:8790</string>
 </resources>

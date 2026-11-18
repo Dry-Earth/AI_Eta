@@ -3,13 +3,17 @@ package io.github.mangi.eta.ui.geniex
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.itos.coui.layout.Divider
 import io.github.mangi.eta.R
+import io.github.mangi.eta.agent.geniex.GenieXLocalServer
 import io.github.mangi.eta.agent.vision.VisionFailure
 import io.github.mangi.eta.data.model.AppearanceUiStyle
 import io.github.mangi.eta.data.model.ImageRecognitionSettings
@@ -173,6 +177,24 @@ private fun GenieXContent(
             SpeechActionRow(
                 title = stringResource(R.string.vision_delete_model),
                 onClick = { store.removeSelected() },
+            )
+        }
+        val context = LocalContext.current
+        var serverRunning by remember { mutableStateOf(GenieXLocalServer.running) }
+        SpeechGroupCard(title = stringResource(R.string.geniex_server_group)) {
+            SpeechNote(
+                if (serverRunning) stringResource(R.string.geniex_server_running) else stringResource(R.string.geniex_server_stopped),
+            )
+            SpeechActionRow(
+                title = if (serverRunning) {
+                    stringResource(R.string.geniex_server_stop)
+                } else {
+                    stringResource(R.string.geniex_server_start)
+                },
+                onClick = {
+                    if (serverRunning) GenieXLocalServer.stop(context) else GenieXLocalServer.start(context)
+                    serverRunning = !serverRunning
+                },
             )
         }
         SpeechActionRow(
